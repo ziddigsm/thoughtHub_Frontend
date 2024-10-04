@@ -1,35 +1,38 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import "./App.css";
+import { GoogleLogin } from '@react-oauth/google';
+import {jwtDecode} from 'jwt-decode';
+import axios from 'axios';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const handleSuccess = async (credentialResponse) => {
+    console.log("Success:", credentialResponse);
+    const userData = {};
+    const decodedToken = jwtDecode(credentialResponse.credential);
+    userData.mail = decodedToken.email;
+    userData.name = decodedToken.name;
+    userData.username = null;
+    console.log(userData);
+    let res = "";
+    const createUserApi = import.meta.env.VITE_CREATE_USER_API;
+   await axios.post(createUserApi, userData).then((response) => {
+    console.log(response);
+    res = response.data;
+   }).catch(err=>{
+    console.log(err)
+   });
+    console.log("User created successfully:", res);
+  };
+
+  const handleError = () => {
+    console.log("Login Failed");
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div>
+      <h1>Welcome to ThoughtHub</h1>
+      <GoogleLogin onSuccess={handleSuccess} onError={handleError} />
+    </div>
+  );
 }
 
-export default App
+export default App;
