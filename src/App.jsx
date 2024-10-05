@@ -2,6 +2,9 @@ import "./App.css";
 import { GoogleLogin } from '@react-oauth/google';
 import {jwtDecode} from 'jwt-decode';
 import axios from 'axios';
+import { Settings } from "./components/Settings/settings";
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+
 
 function App() {
   const handleSuccess = async (credentialResponse) => {
@@ -28,10 +31,19 @@ function App() {
   };
 
   return (
-    <div>
+    <Router>
+      <div>
+        <nav>
+          <Link to="/settings">Go to Settings</Link>
+        </nav>
+      
       <h1>Welcome to ThoughtHub</h1>
       <GoogleLogin onSuccess={handleSuccess} onError={handleError} />
+      <Routes>
+        <Route path="/settings" element={<Settings />} />
+      </Routes>
     </div>
+    </Router>
   );
 }
 
