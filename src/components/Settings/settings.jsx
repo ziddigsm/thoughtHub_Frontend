@@ -70,6 +70,7 @@ function socialsSection() {
             </div>
             <div>
             <FaGithub className='social github'/>
+        
             <input type="url" />
             </div>
             <div>
