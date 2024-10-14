@@ -1,3 +1,5 @@
+
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import GoogleLoginComponent from './google';
@@ -18,28 +20,14 @@ function Home() {
   };
 
   const fetchBlogs = async () => {
-    const blogIds = [1,3,10];
     try {
-      const blogRequests = blogIds.map(id => axios.get(`http://localhost:8080/api/v1/get_blogs?user_id=0`));
-      const responses = await Promise.all(blogRequests);
-      const blogs = responses.map(response => {
-        console.log('Fetched data:', response.data); 
-        return response.data;
-      });
-      setBlogPosts(blogs.flat());
+      const response = await axios.get('http://localhost:8080/api/v1/get_blogs?user_id=3'); 
+      setBlogPosts(response.data); 
     } catch (error) {
-      console.error('Error fetching blogs:', error.message);
-      if (error.response) {
-        console.error('Response data:', error.response.data);
-        console.error('Response status:', error.response.status);
-      } else if (error.request) {
-        console.error('No response received:', error.request);
-      } else {
-        console.error('Unexpected error:', error.message);
-      }
+      console.error('Error fetching blogs:', error);
     }
   };
-  
+
   useEffect(() => {
     fetchBlogs(); 
   }, []);
@@ -94,53 +82,53 @@ function Home() {
           </div>
 
           <div className="flex flex-wrap gap-5 justify-around mt-20 z-10">
-          {filteredPosts.length > 0 ? (
-          filteredPosts.map((post) => (
-            <div
-              key={post.blog_data.id}
-              style={{
-                animation: `slideInBounce 2s ease-out forwards`,
-                animationDelay: getRandomDelay(),
-              }}
-              className="relative mb-6 overflow-hidden rounded-3xl shadow-xl w-[calc(50%-20px)] h-[300px] cursor-pointer group transform hover:scale-110 transition-transform ease-in-out"
-              onClick={openSignInModal}>
-
-      <div className="w-full h-full flex flex-col items-center">
-        <div className="relative h-full w-full">
-          <img
-            src={`data:image/png;base64,${post.blog_data.blog_image}`}
-            alt={post.blog_data.title}
-            className="w-full h-full object-cover rounded-lg transition-transform duration-500 opacity-80 group-hover:brightness-50"
-          />
-          <div className="absolute text-2xl text-slate-200 font-bold inset-0 flex flex-col items-center justify-center text-center text-white bg-black bg-opacity-40 group-hover:opacity-100 transition-opacity duration-500 p-4">
-            <h1>{post.blog_data.title}</h1>
-          </div>
-          <div className="absolute top-5 right-5 flex items-center space-x-3 text-white text-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-in-out">
-            <div className="flex items-center space-x-1">
-              <FaHeart className="text-red-500" /> <span>{post.likes}</span>
-            </div>
-            <div className="flex items-center space-x-1">
-              <FaComment className="text-blue-300" /> <span>{post.comments?.length || 0}</span>
-            </div>
-          </div>
-          <div className="absolute bottom-7 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 translate-y-full group-hover:translate-y-0 p-10 w-3/4 bg-teal-50 rounded-3xl shadow-lg transition-all duration-500 ease-in-out">
-            <h2 className="text-gray-800 font-bold text-xl text-center">{post.blog_data.title}</h2>
-            <p className="text-gray-600 text-center mt-2 text-base">{post.blog_data.content}</p>
-            <a href="#" className="text-center hover:underline mt-3 block text-[#198b91] text-lg">Read More</a>
-          </div>
-        </div>
-      </div>
-    </div>
-  ))
-    ) : (
-      <p>No blog posts found.</p>
-    )}
-
+            {filteredPosts.length > 0 ? (
+              filteredPosts.map((post) => (
+                <div
+                key={post.blog_data.id}
+                style={{
+                  animation: `slideInBounce 2s ease-out forwards`,
+                  animationDelay: getRandomDelay(),
+                }}
+                className="relative mb-6 overflow-hidden rounded-3xl shadow-xl w-[calc(50%-20px)] h-[300px] cursor-pointer group transform hover:scale-110 transition-transform ease-in-out"
+                onClick={openSignInModal}
+              >
+                <div className="w-full h-full flex flex-col items-center">
+                  <div className="relative h-full w-full">
+                    <img
+                      src={`data:image/png;base64,${post.blog_data.blog_image}`}
+                      alt={post.blog_data.title}
+                      className="w-full h-full object-cover rounded-lg transition-transform duration-500 opacity-80 group-hover:brightness-50"
+                    />
+                    <div className="absolute text-2xl text-slate-200 font-bold inset-0 flex flex-col items-center justify-center text-center text-white bg-black bg-opacity-40 group-hover:opacity-100 transition-opacity duration-500 p-4">
+                      <h1>{post.blog_data.title}</h1>
+                    </div>
+                    <div className="absolute top-5 right-5 flex items-center space-x-3 text-white text-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-in-out">
+                      <div className="flex items-center space-x-1">
+                        <FaHeart className="text-red-500" /> <span>{post.likes}</span>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <FaComment className="text-blue-300" /> <span>{post.comments.length}</span>
+                      </div>
+                    </div>
+                    <div className="absolute bottom-7 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 translate-y-full group-hover:translate-y-0 p-10 w-3/4 bg-teal-50 rounded-3xl shadow-lg transition-all duration-500 ease-in-out">
+                      <h2 className="text-gray-800 font-bold text-xl text-center">{post.blog_data.title}</h2>
+                      <p className="text-gray-600 text-center mt-2 text-base">{post.blog_data.content}</p>
+                      <a href="#" className="text-center hover:underline mt-3 block text-[#198b91] text-lg">Read More</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              ))
+            ) : (
+              <p>No blog posts found.</p>
+            )}
           </div>
         </section>
       </div>
 
-      <footer className={`${isModalOpen ? "blur-sm" : ""} bg-black text-white text-center p-10 ${footerVisible ? "animate-slideInFromLeft" : "opacity-0"}`}
+      <footer className={`${isModalOpen ? "blur-sm" : ""} bg-black text-white text-center p-10 ${footerVisible ? "animate-slideInFromLeft" : "opacity-1"}`}
       style={{
         animation: footerVisible ? "slideInFromLeft 1.5s ease-out forwards" : "",
         animationDelay: "0.5s",
@@ -197,3 +185,7 @@ function Home() {
 }
 
 export default Home;
+
+
+
+
