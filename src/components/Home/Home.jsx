@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import GoogleLoginComponent from './google';
 import { FaThumbsUp, FaComment, FaHeart, FaSearch } from 'react-icons/fa';
@@ -20,7 +20,7 @@ function Home() {
   const fetchBlogs = async () => {
     const blogIds = [1,3,10];
     try {
-      const blogRequests = blogIds.map(id => axios.get(`http://localhost:8080/api/v1/get_blogs?user_id=0`));
+      const blogRequests = blogIds.map(id => axios.get(`http://localhost:8080/api/v1/get_blogs?user_id=${id}`));
       const responses = await Promise.all(blogRequests);
       const blogs = responses.map(response => {
         console.log('Fetched data:', response.data); 
