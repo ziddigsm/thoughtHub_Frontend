@@ -85,7 +85,7 @@ function Home() {
             <FaSearch className="text-sky-800 text-2xl" />
             <input
               type="text"
-              placeholder="Search blog posts..."
+              placeholder="Search blogs..."
               value={searchQuery}
               onChange={handleSearchChange}
               className="w-25 p-2 hover:scale-105 text-lg text-gray-600 rounded-lg bg-[#f8f9fa] border-2 border-black outline-none transition-transform"
