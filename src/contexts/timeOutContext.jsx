@@ -1,10 +1,9 @@
-/* eslint-disable no-unused-vars */
 import { createContext, useState, useEffect, useContext } from "react";
+import PropTypes from "prop-types";
 
 const TimeOutContext = createContext();
 
-// eslint-disable-next-line react/prop-types
-export const TimeOutProvider = ({children}) => {
+const TimeOutProvider = ({children}) => {
     const [isAuthSuccess, setIsAuthSuccess] = useState(() => !!sessionStorage.getItem("userData"));
     const login = (userData) =>{
         sessionStorage.setItem('userData', JSON.stringify(userData));
@@ -45,6 +44,13 @@ export const TimeOutProvider = ({children}) => {
         </TimeOutContext.Provider>
     );
 }
-export const useTimeOutContext = () => {
+
+TimeOutProvider.propTypes = {
+    children: PropTypes.node.isRequired,
+}
+
+const useTimeOutContext = () => {
     return useContext(TimeOutContext);
 };
+
+export { TimeOutProvider, useTimeOutContext};

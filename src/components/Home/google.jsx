@@ -3,9 +3,9 @@ import axios from 'axios';
 import './google.css'; 
 import { FaGoogle } from 'react-icons/fa';
 import {useTimeOutContext} from '../../contexts/timeOutContext';
+import PropTypes from 'prop-types';
 
 
-// eslint-disable-next-line react/prop-types
 const GoogleLoginComponent = ({ isInModal }) => { 
   const { login } = useTimeOutContext();
   const googleLogin = useGoogleLogin({
@@ -48,11 +48,14 @@ const GoogleLoginComponent = ({ isInModal }) => {
       className={`custom-google-btn ${isInModal ? "modal-btn" : "header-btn"}`} 
       onClick={googleLogin} 
     >
-      
       <FaGoogle className='google-logo' />
       Sign in with Google
     </button>
   );
 };
+
+GoogleLoginComponent.propTypes = {
+  isInModal: PropTypes.bool,
+}
 
 export default GoogleLoginComponent;

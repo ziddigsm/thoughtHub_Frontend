@@ -13,7 +13,7 @@ import { useTimeOutContext } from "../../contexts/timeOutContext";
 export function Settings() {
   const userData = JSON.parse(sessionStorage.getItem("userData"));
   const [settings, setSettings] = useState("about");
-  const [userDetails, setUserDetails] = useState({ 
+  const [userDetails, setUserDetails] = useState({
     name: userData?.name,
     username: userData?.username,
     mail: userData?.mail,
@@ -23,19 +23,23 @@ export function Settings() {
     instagram: userData?.socials?.github || "",
     facebook: userData?.socials?.github || "",
     twitter: userData?.socials?.github || "",
-});
+  });
   const { logout } = useTimeOutContext();
-  const handleLogout = useCallback( () => {
+  const handleLogout = useCallback(() => {
     logout();
     window.location.href = "/";
-  },[logout]);
+  }, [logout]);
 
   const handleSettings = (setting) => {
     switch (setting) {
       case "about":
-        return <AboutSection userDetails={userDetails} handleEdit = {handleEdit}/>;
+        return (
+          <AboutSection userDetails={userDetails} handleEdit={handleEdit} />
+        );
       case "social":
-        return <SocialsSection userDetails={userDetails} handleEdit = {handleEdit}/>;
+        return (
+          <SocialsSection userDetails={userDetails} handleEdit={handleEdit} />
+        );
       case "options":
         return <OptionsSection handleLogout={handleLogout} />;
       default:
@@ -43,9 +47,9 @@ export function Settings() {
     }
   };
 
-  const handleEdit = useCallback((property, value)=>{
-    setUserDetails((oldDetails)=>({...oldDetails, [property]: value}));
-  },[]);
+  const handleEdit = useCallback((property, value) => {
+    setUserDetails((oldDetails) => ({ ...oldDetails, [property]: value }));
+  }, []);
 
   return (
     <div className="flex flex-row max-md:flex-col h-screen w-screen">
@@ -127,7 +131,7 @@ function AboutSection({ userDetails, handleEdit }) {
             type="text"
             placeholder="Enter your name"
             value={userDetails?.name}
-            onChange = {e=>handleEdit("name", e.target.value)}
+            onChange={(e) => handleEdit("name", e.target.value)}
           />
         </div>
         <div className="hover:scale-105 transition-transform">
@@ -138,7 +142,7 @@ function AboutSection({ userDetails, handleEdit }) {
             type="text"
             placeholder="Enter your username"
             value={userDetails?.username}
-            onChange = {e=>handleEdit("username", e.target.value)}
+            onChange={(e) => handleEdit("username", e.target.value)}
           />
         </div>
         <div className="hover:scale-105 transition-transform">
@@ -158,46 +162,85 @@ function AboutSection({ userDetails, handleEdit }) {
 }
 
 AboutSection.propTypes = {
-    userDetails: PropTypes.object.isRequired,
-    handleEdit: PropTypes.func.isRequired,
-}
+  userDetails: PropTypes.object.isRequired,
+  handleEdit: PropTypes.func.isRequired,
+};
 
 function SocialsSection({ userDetails, handleEdit }) {
+  const socials = [
+    {
+      name: "linkedin",
+      tag: FaLinkedin,
+      placeholder: "LinkedIn URL",
+      value: userDetails.linkedin,
+      onChange: (e) => handleEdit("linkedin", e.target.value),
+      props: 'text-blue-600'
+    },
+    {
+      name: "github",
+      tag: FaGithub,
+      placeholder: "GitHub URL",
+      value: userDetails.github,
+      onChange: (e) => handleEdit("github", e.target.value),
+      props: 'text-gray-800'
+    },
+    {
+      name: "facebook",
+      tag: FaFacebook,
+      placeholder: "Facebook URL",
+      value: userDetails.facebook,
+      onChange: (e) => handleEdit("facebook", e.target.value),
+      props: 'text-blue-700'
+    },
+    {
+      name: "instagram",
+      tag: FaInstagram,
+      placeholder: "Instagram URL",
+      value: userDetails.instagram,
+      onChange: (e) => handleEdit("instagram", e.target.value),
+      props: 'text-pink-900'
+    },
+    {
+      name: "twitter",
+      tag: FaTwitter,
+      placeholder: "Twitter URL",
+      value: userDetails.twitter,
+      onChange: (e) => handleEdit("twitter", e.target.value),
+      props: 'text-blue-400'
+    },
+  ];
   return (
     <div className="container socials">
       <h2 className="text-2xl font-bold mb-6 text-gray-800 max-sm:text-lg">
         Social
       </h2>
       <div className="space-y-6">
-        <div className="flex items-center space-x-4 hover:scale-105 transition-transform">
-          <FaLinkedin className="text-blue-600 text-4xl" />
-          <InputField type="url" placeholder="LinkedIn URL" value = {userDetails.linkedin} onChange = {e=>handleEdit("linkedin", e.target.value)}/>
-        </div>
-        <div className="flex items-center space-x-4 hover:scale-105 transition-transform">
-          <FaGithub className="text-gray-800 text-4xl" />
-          <InputField type="url" placeholder="GitHub URL" value = {userDetails.github} onChange = {e=>handleEdit("github", e.target.value)} />
-        </div>
-        <div className="flex items-center space-x-4 hover:scale-105 transition-transform">
-          <FaFacebook className="text-blue-700 text-4xl" />
-          <InputField type="url" placeholder="Facebook URL" value = {userDetails.facebook} onChange = {e=>handleEdit("facebook", e.target.value)}/>
-        </div>
-        <div className="flex items-center space-x-4 hover:scale-105 transition-transform">
-          <FaInstagram className="text-pink-900 text-4xl" />
-          <InputField type="url" placeholder="Instagram URL" value = {userDetails.instagram} onChange = {e=>handleEdit("instagram", e.target.value)}/>
-        </div>
-        <div className="flex items-center space-x-4 hover:scale-105 transition-transform">
-          <FaTwitter className="text-blue-400 text-4xl" />
-          <InputField type="url" placeholder="Twitter URL" value = {userDetails.twitter} onChange = {e=>handleEdit("twitter", e.target.value)}/>
-        </div>
+        {socials.map((key) => {
+          const Icon = key.tag;
+          return (
+            <div
+              key={key}
+              className="flex items-center space-x-4 hover:scale-105 transition-transform"
+            >
+              <Icon className={` ${key.props} text-4xl`} />
+              <InputField
+                type="url"
+                placeholder={key.placeholder}
+                value={key.value}
+                onChange={key.onChange}
+              />
+            </div>
+          );
+        })}
       </div>
     </div>
   );
 }
 
 SocialsSection.propTypes = {
-    userDetails: PropTypes.object.isRequired,
-    handleEdit: PropTypes.func.isRequired,
-}
+  userDetails: PropTypes.object.isRequired,
+  handleEdit: PropTypes.func.isRequired,
+};
 
 function OptionsSection({ handleLogout }) {
   return (
@@ -240,8 +283,7 @@ InputField.propTypes = {
   type: PropTypes.string.isRequired,
   placeholder: PropTypes.string,
   className: PropTypes.string,
-    onChange: PropTypes.func,
+  onChange: PropTypes.func,
 };
-
 
 export default Settings;

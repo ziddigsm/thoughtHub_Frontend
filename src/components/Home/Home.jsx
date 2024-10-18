@@ -20,10 +20,9 @@ function Home() {
   const fetchBlogs = async () => {
     const blogIds = [1,3,10];
     try {
-      const blogRequests = blogIds.map(id => axios.get(`http://localhost:8080/api/v1/get_blogs?user_id=${id}`));
+      const blogRequests = blogIds.map(id => axios.get(`${import.meta.env.VITE_GET_USER_DATA_GO_API + parseInt(id)}`));
       const responses = await Promise.all(blogRequests);
       const blogs = responses.map(response => {
-        console.log('Fetched data:', response.data); 
         return response.data;
       });
       setBlogPosts(blogs.flat());
@@ -112,7 +111,7 @@ function Home() {
             alt={post.blog_data.title}
             className="w-full h-full object-cover rounded-lg transition-transform duration-500 opacity-80 group-hover:brightness-50"
           />
-          <div className="absolute text-2xl text-slate-200 font-bold inset-0 flex flex-col items-center justify-center text-center text-white bg-black bg-opacity-40 group-hover:opacity-100 transition-opacity duration-500 p-4">
+          <div className="absolute text-2xl text-slate-200 font-bold inset-0 flex flex-col items-center justify-center text-center bg-black bg-opacity-40 group-hover:opacity-100 transition-opacity duration-500 p-4">
             <h1>{post.blog_data.title}</h1>
           </div>
           <div className="absolute top-5 right-5 flex items-center space-x-3 text-white text-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-in-out">
