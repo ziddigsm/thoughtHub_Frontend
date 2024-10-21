@@ -29,7 +29,7 @@ const GoogleLoginComponent = ({ isInModal }) => {
         login(userData); 
         console.log("User Logged in successfully:", response.data);
         if (response.status === 200) {
-          window.location.href = "/settings";
+          window.location.href = "/home";
         }
         else {
           window.location.href = "/";
