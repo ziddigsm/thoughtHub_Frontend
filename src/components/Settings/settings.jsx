@@ -8,7 +8,7 @@ import {
   FaTwitter,
 } from "react-icons/fa";
 import { FiArrowLeft } from "react-icons/fi";
-import { useTimeOutContext } from "../../contexts/timeOutContext";
+import { useLogout } from "../../contexts/useLogout";
 
 export function Settings() {
   const userData = JSON.parse(sessionStorage.getItem("userData"));
@@ -24,11 +24,8 @@ export function Settings() {
     facebook: userData?.socials?.github || "",
     twitter: userData?.socials?.github || "",
   });
-  const { logout } = useTimeOutContext();
-  const handleLogout = useCallback(() => {
-    logout();
-    window.location.href = "/";
-  }, [logout]);
+
+const handleLogout = useLogout().handleLogout;
 
   const handleSettings = (setting) => {
     switch (setting) {
@@ -105,7 +102,7 @@ export function Settings() {
             )}
             <div className="flex flex-row items-center hover:scale-105">
               <FiArrowLeft className="text-gray-900" />
-              <a href="/#" className="text-hub-100 flex-shrink hover:underline">
+              <a href="/home" className="text-hub-100 flex-shrink hover:underline">
                 Go to Home
               </a>
             </div>
