@@ -86,7 +86,7 @@ function Home() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="header top-0 z-50 sticky flex flex-row px-6 items-center justify-between bg-thought-50 rounded-full m-4 shadow-lg">
+      <header className="header top-0 z-50 sticky flex flex-row px-6 items-center justify-between bg-thought-50 rounded-full m-4 shadow-lg opacity-85 hover:opacity-100 transition-opacity duration-400">
         <a
           href="/home"
           className="text-xl font-bold p-4"
@@ -157,8 +157,7 @@ function Home() {
       {openMenu && (
         <div
           ref={menuRef}
-          className="md:hidden fixed top-20 right-4 bg-thought-50 p-4 z-50 shadow-lg rounded-3xl max-h-[calc(100vh-20rem)] overflow-y-auto"
-          style={{ maxWidth: "100vw-20rem" }}
+          className="md:hidden w-full fixed top-20 bg-thought-50 p-4 z-50 shadow-lg rounded-3xl max-h-[calc(100vh-20rem)] overflow-y-auto"
         >
           <div className="flex flex-col space-y-4">
             {navBarItems.map((item) => (
@@ -188,7 +187,7 @@ function Home() {
       {isProfileOpen && (
         <div
           ref={profileRef}
-          className="flex flex-col  absolute right-5 p-2 space-y-2 max-md:right-14 items-start z-10 bg-thought-50 shadow-lg rounded-lg top-20 "
+          className="flex flex-col  fixed right-5 p-2 space-y-2 max-md:right-14 items-start z-20 bg-thought-50 shadow-lg rounded-lg top-20 "
         >
           <a
             className="hover:text-thought-100 cursor-pointer block w-full p-2"
