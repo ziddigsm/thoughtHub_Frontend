@@ -5,6 +5,7 @@ import { GrClose, GrSearch } from "react-icons/gr";
 import { GiHamburgerMenu } from "react-icons/gi";
 import "./Home.css";
 import { useLogout } from "../../contexts/useLogout";
+import {Shimmer} from "./shimmer";
 
 function Home() {
   const [dropDown, setDropDown] = useState(false);
@@ -114,7 +115,7 @@ function Home() {
             {dropDown && (
               <div
                 ref={moreRef}
-                className="absolute top-12 right-0 bg-thought-50 p-2 text-left rounded-lg space-y-1 flex flex-col z-10 shadow-lg"
+                className="absolute top-12 right-0 bg-thought-50 p-2 text-left rounded-lg space-y-1 flex flex-col shadow-lg z-20"
               >
                 {dropDownItems.map((item) => (
                   <button
@@ -217,8 +218,13 @@ function Home() {
         <div className="relative flex items-center justify-center px-4 py-8 sm:py-12 md:py-16 lg:py-20">
           <SearchBar />
         </div>
+        <div className='relative z-10'>
+          <Shimmer />
+        </div>
       </div>
     </div>
+
+    
   );
 }
 
