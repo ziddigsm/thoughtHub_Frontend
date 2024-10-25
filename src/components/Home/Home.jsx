@@ -86,7 +86,7 @@ function Home() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <div className="header flex flex-row px-6 items-center justify-between bg-thought-50 rounded-full m-4 shadow-lg">
+      <header className="header top-0 z-50 sticky flex flex-row px-6 items-center justify-between bg-thought-50 rounded-full m-4 shadow-lg">
         <a
           href="/home"
           className="text-xl font-bold p-4"
@@ -152,7 +152,7 @@ function Home() {
             )}
           </button>
         </div>
-      </div>
+      </header>
 
       {openMenu && (
         <div
