@@ -206,12 +206,7 @@ function Home() {
       )}
       <div className="relative flex-grow">
         <div
-          className="absolute inset-1 bg-cover bg-center rounded-lg m-5"
-          style={{
-            backgroundImage: "url('src/assets/bg.jpg')",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
+          className="absolute inset-1 bg-cover bg-center rounded-lg m-5 bg-[url('src/assets/bg.jpg')]"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-transparent via-transparent to-[#ffffff] opacity-100 z-0"></div>
         <div className="relative flex items-center justify-center px-4 py-8 sm:py-12 md:py-16 lg:py-20">
@@ -222,8 +217,6 @@ function Home() {
         </div>
       </div>
     </div>
-
-    
   );
 }
 
