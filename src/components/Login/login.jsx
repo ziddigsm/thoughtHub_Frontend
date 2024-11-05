@@ -18,7 +18,7 @@ function Login() {
   };
 
   const fetchBlogs = async () => {
-    const blogIds = [1, 3, 10];
+    const blogIds = [21];
     try {
       const blogRequests = blogIds.map((id) =>
         axios.get(`${import.meta.env.VITE_GET_USER_DATA_GO_API + parseInt(id)}`)

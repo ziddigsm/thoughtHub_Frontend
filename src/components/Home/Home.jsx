@@ -6,12 +6,14 @@ import { GiHamburgerMenu } from "react-icons/gi";
 import "./Home.css";
 import { useLogout } from "../../contexts/useLogout";
 import {Shimmer} from "./shimmer";
+import { NewBlogModal } from "../Blog/newblog";
 
 function Home() {
   const [dropDown, setDropDown] = useState(false);
   const [openMenu, setOpenMenu] = useState(false);
   const [isSmallScreen, setIsSmallScreen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
   const menuRef = useRef(null);
   const profileRef = useRef(null);
   const moreRef = useRef(null);
@@ -48,6 +50,11 @@ function Home() {
   const handleClickOnProfile = () => {
     setIsProfileOpen(!isProfileOpen);
   };
+
+  const handleNewBlogModal = () => {
+    setModalOpen(!modalOpen);
+  };
+
   useEffect(() => {
     const handleResize = () => {
       setIsSmallScreen(window.innerWidth < 900);
@@ -131,7 +138,7 @@ function Home() {
         </div>
 
         <div className="flex items-center space-x-4">
-          <button className="hidden md:block rounded-xl bg-thought-100 p-2 px-3 justify-center text-white hover:bg-hub-100 transition-all duration-300 ease-linear">
+          <button className="hidden md:block rounded-xl bg-thought-100 p-2 px-3 justify-center text-white hover:bg-hub-100 transition-all duration-300 ease-linear" onClick={handleNewBlogModal}>
             {isSmallScreen ? "+" : "+ New Blog"}
           </button>
           <img
@@ -157,7 +164,7 @@ function Home() {
       {openMenu && (
         <div
           ref={menuRef}
-          className="md:hidden w-full fixed top-20 bg-thought-50 p-4 z-50 shadow-lg rounded-3xl max-h-[calc(100vh-20rem)] overflow-y-auto"
+          className="md:hidden w-full fixed top-20 bg-thought-50 p-4 z-50 shadow-lg rounded-3xl max-h-[75vh] overflow-y-auto"
         >
           <div className="flex flex-col space-y-4">
             {navBarItems.map((item) => (
@@ -178,7 +185,7 @@ function Home() {
               </button>
             ))}
             <div className="h-px bg-gray-200" />
-            <button className="w-full rounded-xl bg-thought-100 p-2 px-3 text-white hover:bg-hub-100 transition-all duration-300 ease-linear">
+            <button className="w-full rounded-xl bg-thought-100 p-2 px-3 text-white hover:bg-hub-100 transition-all duration-300 ease-linear" onClick={handleNewBlogModal}>
               + New Blog
             </button>
           </div>
@@ -215,6 +222,8 @@ function Home() {
         <div className='relative z-10'>
           <Shimmer />
         </div>
+
+        {modalOpen && <NewBlogModal isOpen={modalOpen} onClose = {()=>setModalOpen(false)}/>}
       </div>
     </div>
   );
