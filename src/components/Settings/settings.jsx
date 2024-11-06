@@ -9,6 +9,7 @@ import {
 } from "react-icons/fa";
 import { FiArrowLeft } from "react-icons/fi";
 import { useLogout } from "../../contexts/useLogout";
+import axios from "axios";
 
 export function Settings() {
   const userData = JSON.parse(localStorage.getItem("userData"));
@@ -24,6 +25,17 @@ export function Settings() {
     facebook: userData?.socials?.github || "",
     twitter: userData?.socials?.github || "",
   });
+  const [isAboutUpdated, setIsAboutUpdated] = useState(false);
+  const [isSocialUpdated, setIsSocialUpdated] = useState(false);
+  const [isNameUpdated, setIsNameUpdated] = useState(false);
+  const [isUsernameUpdated, setIsUsernameUpdated] = useState(false);
+  const [isGithubUpdated, setIsGithubUpdated] = useState(false);
+  const [isLinkedinUpdated, setIsLinkedinUpdated] = useState(false);
+  const [isInstagramUpdated, setIsInstagramUpdated] = useState(false);
+  const [isFacebookUpdated, setIsFacebookUpdated] = useState(false);
+  const [isTwitterUpdated, setIsTwitterUpdated] = useState(false);
+
+  let localUserData = JSON.parse(localStorage.getItem("userData"))
 
 const handleLogout = useLogout().handleLogout;
 
@@ -46,7 +58,69 @@ const handleLogout = useLogout().handleLogout;
 
   const handleEdit = useCallback((property, value) => {
     setUserDetails((oldDetails) => ({ ...oldDetails, [property]: value }));
-  }, []);
+    if (property === "name") {
+      setIsNameUpdated(true);
+    }
+    else if (property === "username") {
+      setIsUsernameUpdated(true);
+    }
+    else if (property === "github") {
+      setIsGithubUpdated(true);
+    }
+    else if (property === "linkedin") {
+      setIsLinkedinUpdated(true);
+    }
+    else if (property === "instagram") {
+      setIsInstagramUpdated(true);
+    }
+    else if (property === "facebook") {
+      setIsFacebookUpdated(true);
+    }
+    else if (property === "twitter") {
+      setIsTwitterUpdated(true);
+    }
+    if(settings === "about") {
+      setIsAboutUpdated(true);
+    }
+    if(settings === "social") {
+      setIsSocialUpdated(true);
+    }
+  }, [settings]);
+
+  const saveAboutData = async (userDetails) => {
+    let aboutRequestBody = {
+      "id": localUserData.user_id,
+      "is_active": localUserData.is_active,
+    };
+    if(isNameUpdated) {
+      aboutRequestBody.name = userDetails.name;
+    }
+    if(isUsernameUpdated) {
+      aboutRequestBody.username = userDetails.username;
+    }
+    await axios.post(import.meta.env.VITE_POST_SAVE_ABOUT_GO_API, aboutRequestBody).then(res => {
+      if(res.status === 200) {
+        setIsAboutUpdated(false);
+        localUserData.name = userDetails.name;
+        localUserData.username = userDetails.username;
+        localStorage.setItem("userData", JSON.stringify(localUserData));
+        alert("User Information updated successfully");
+      }
+    });
+  }
+
+  const saveSocialData = (userDetails) => {
+
+  }
+
+  const handleOnSave = () => {
+    if (settings === "about") {
+      saveAboutData(userDetails);
+    }
+    if(settings === "social") {
+      saveSocialData(userDetails);
+    }
+  }
 
   return (
     <div className="flex flex-row max-md:flex-col h-screen w-screen">
@@ -95,7 +169,8 @@ const handleLogout = useLogout().handleLogout;
             {settings !== "options" && (
               <button
                 type="button"
-                className="px-6 py-3 bg-thought-100 text-white text-lg font-semibold rounded-lg hover:bg-thought-200 transition max-sm:px-4 max-sm:py-2"
+                className={`px-6 py-3 bg-thought-100 text-white text-lg font-semibold rounded-lg hover:bg-thought-200 transition max-sm:px-4 max-sm:py-2 ${!isAboutUpdated && !isSocialUpdated ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
+                onClick={handleOnSave} disabled = {!isAboutUpdated && !isSocialUpdated}
               >
                 Save
               </button>
@@ -139,7 +214,9 @@ function AboutSection({ userDetails, handleEdit }) {
             type="text"
             placeholder="Enter your username"
             value={userDetails?.username}
-            onChange={(e) => handleEdit("username", e.target.value)}
+            onChange={(e) => {
+              handleEdit("username", e.target.value)
+            }}
           />
         </div>
         <div className="hover:scale-105 transition-transform">
