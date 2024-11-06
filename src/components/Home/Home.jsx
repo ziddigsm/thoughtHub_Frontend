@@ -1,7 +1,6 @@
-import img from "../../assets/bg.jpg";
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { GrClose, GrSearch } from "react-icons/gr";
+import { GrClose, GrSearch, GrUserManager } from "react-icons/gr";
 import { GiHamburgerMenu } from "react-icons/gi";
 import "./Home.css";
 import { useLogout } from "../../contexts/useLogout";
@@ -141,10 +140,8 @@ function Home() {
           <button className="hidden md:block rounded-xl bg-thought-100 p-2 px-3 justify-center text-white hover:bg-hub-100 transition-all duration-300 ease-linear" onClick={handleNewBlogModal}>
             {isSmallScreen ? "+" : "+ New Blog"}
           </button>
-          <img
-            src={img}
-            alt="user"
-            className="w-10 h-10 rounded-full cursor-pointer"
+          <GrUserManager
+            className="w-8 h-8 rounded-full cursor-pointer"
             onClick={handleClickOnProfile}
           />
 
@@ -219,7 +216,7 @@ function Home() {
       )}
       <div className="relative flex-grow">
         <div
-          className="absolute inset-1 bg-cover bg-center rounded-lg m-5 bg-[url('src/assets/bg.jpg')]"
+          className="absolute inset-1 bg-cover bg-center rounded-lg m-3 bg-[url('src/assets/bg.jpg')]"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-transparent via-transparent to-[#ffffff] opacity-100 z-0"></div>
         <div className="relative flex items-center justify-center px-4 py-8 sm:py-12 md:py-16 lg:py-20">
