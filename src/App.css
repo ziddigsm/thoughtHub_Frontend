@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@keyframes popIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.5); 
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1); 
+  }
+}
+
+.animate-popIn {
+  animation: popIn 0.9s ease-out forwards;
+  opacity: 0; 
+}
+
+@keyframes slideInBounce {
+  0% {
+    opacity: 0;
+    transform: translateY(-900px);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(200px);
+  }
+ 
+}
+
+
+@keyframes slideInFromLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
