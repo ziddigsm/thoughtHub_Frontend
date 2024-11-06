@@ -200,6 +200,12 @@ function Home() {
             className="hover:text-thought-100 cursor-pointer block w-full p-2"
             onClick={handleClickOnSettings}
           >
+            My Blogs
+          </a>
+          <a
+            className="hover:text-thought-100 cursor-pointer block w-full p-2"
+            onClick={handleClickOnSettings}
+          >
             Settings
           </a>
           <div className="h-px bg-gray-300 opacity-50 w-full" />

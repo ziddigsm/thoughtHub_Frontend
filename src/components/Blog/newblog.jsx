@@ -22,7 +22,7 @@ export function NewBlogModal({ isOpen, onClose }) {
       formData.append("blog_image", image);
       formData.append(
         "user_id",
-        JSON.parse(sessionStorage.getItem("userData")).user_id
+        JSON.parse(localStorage.getItem("userData")).user_id
       );
       let res = await axios.post(
         "http://localhost:8080/api/v1/create_blog",

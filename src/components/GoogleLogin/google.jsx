@@ -25,7 +25,9 @@ const GoogleLoginComponent = ({ isInModal }) => {
         const createUserApi = import.meta.env.VITE_CREATE_USER_API;
         const response = await axios.post(createUserApi, userData);
         userData.user_id = response.data.user_id;
-        
+        userData.name = response.data.name;
+        userData.username = response.data.username;
+        userData.is_active = response.data.is_active;
         login(userData); 
         console.log("User Logged in successfully:", response.data);
         if (response.status === 200) {

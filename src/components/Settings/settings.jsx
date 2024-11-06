@@ -11,7 +11,7 @@ import { FiArrowLeft } from "react-icons/fi";
 import { useLogout } from "../../contexts/useLogout";
 
 export function Settings() {
-  const userData = JSON.parse(sessionStorage.getItem("userData"));
+  const userData = JSON.parse(localStorage.getItem("userData"));
   const [settings, setSettings] = useState("about");
   const [userDetails, setUserDetails] = useState({
     name: userData?.name,

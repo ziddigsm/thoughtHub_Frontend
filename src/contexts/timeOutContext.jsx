@@ -4,13 +4,13 @@ import PropTypes from "prop-types";
 const TimeOutContext = createContext();
 
 const TimeOutProvider = ({children}) => {
-    const [isAuthSuccess, setIsAuthSuccess] = useState(() => !!sessionStorage.getItem("userData"));
+    const [isAuthSuccess, setIsAuthSuccess] = useState(() => !!localStorage.getItem("userData"));
     const login = (userData) =>{
-        sessionStorage.setItem('userData', JSON.stringify(userData));
+        localStorage.setItem('userData', JSON.stringify(userData));
         setIsAuthSuccess(true);
     }
     const logout = () =>{
-        sessionStorage.removeItem('userData');
+        localStorage.clear();
         setIsAuthSuccess(false);
         window.location.href = '/';
     }
