@@ -2,6 +2,8 @@ import axios from "axios";
 import { useState } from "react";
 import { GrClose } from "react-icons/gr";
 import PropTypes from "prop-types";
+import Compressor from "compressorjs";
+
 
 export function NewBlogModal({ isOpen, onClose }) {
   const [title, setTitle] = useState("");
@@ -10,9 +12,30 @@ export function NewBlogModal({ isOpen, onClose }) {
   const [imagePreview, setImagePreview] = useState(null);
 
   const handleImageChange = (e) => {
-    setImage(e.target.files[0]);
-    setImagePreview(URL.createObjectURL(e.target.files[0]));
+    if(e.target.files[0].size > 5 * 1000 * 1024) {
+        alert("File size should be less than 10MB");
+       e.target.value = null;
+        setImage(null);
+        setImagePreview(null);
+        return;
+    }
+    compressImage(e.target.files[0]);
   };
+
+  const compressImage = (file) => {
+    new Compressor(file, {
+        quality: 0.6,
+        success: (compressedFile) => {
+          setImage(compressedFile);
+          setImagePreview(URL.createObjectURL(compressedFile));
+        },
+        error(err) {
+          console.error("Compression error:", err.message);
+          alert("We ran into a trouble. Please try again later.");
+        },
+      });
+    return
+  }
 
   const handlePublishBlog = async () => {
     try {
@@ -64,7 +87,7 @@ export function NewBlogModal({ isOpen, onClose }) {
           <div className="flex items-center justify-center w-full h-32 sm:h-40 border-2 border-dashed rounded-lg border-gray-300 p-4 bg-gray-50 relative">
             {imagePreview ? (
               <img
-                src={image}
+                src={imagePreview}
                 alt="Preview"
                 className="object-cover w-full h-full rounded-lg"
               />

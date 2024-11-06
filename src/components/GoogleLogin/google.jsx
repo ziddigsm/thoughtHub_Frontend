@@ -41,7 +41,7 @@ const GoogleLoginComponent = ({ isInModal }) => {
       }
     },
     onError: () => {
-      console.log("Login Failxed");
+      console.log("Login Failed");
     },
   });
 
