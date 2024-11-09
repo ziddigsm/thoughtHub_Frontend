@@ -7,8 +7,13 @@ export default {
       extend: {
         screens: {
           'max-sm': { 'max': '640px' }, 
-          'max-md': { 'max': '768px' },  
+          'max-md': { 'max': '768px' }, 
           'max-lg': { 'max': '1024px' }, 
+          'max-xl': { 'max': '1280px' },
+          'max-2xl': { 'max': '1536px' },
+          'min-cus-lg': { 'min': '1066px' },
+          'min-cus-md': { 'min': '769px' },
+          
         },
         colors: {
           'thought': {
