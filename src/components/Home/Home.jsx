@@ -4,8 +4,9 @@ import { GrClose, GrSearch, GrUserManager } from "react-icons/gr";
 import { GiHamburgerMenu } from "react-icons/gi";
 import "./Home.css";
 import { useLogout } from "../../contexts/useLogout";
-import {Shimmer} from "./shimmer";
 import { NewBlogModal } from "../Blog/newblog";
+import  { FetchBlogs }  from '../Blog/blog';
+import { Alert } from "../Settings/alert";
 
 function Home() {
   const [dropDown, setDropDown] = useState(false);
@@ -13,6 +14,8 @@ function Home() {
   const [isSmallScreen, setIsSmallScreen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertType, setAlertType] = useState("");
   const menuRef = useRef(null);
   const profileRef = useRef(null);
   const moreRef = useRef(null);
@@ -90,6 +93,14 @@ function Home() {
     };
   }, []);
 
+  useEffect(() => {
+    const handleBlogSuccess = () => {
+      setAlertMessage("Blog creation successful.");
+      setAlertType("success"); 
+    };
+    window.addEventListener("newBlogSuccess", handleBlogSuccess);
+    return () => window.removeEventListener("newBlogSuccess", handleBlogSuccess);
+  },[]);
   return (
     <div className="min-h-screen flex flex-col">
       <header className="header top-0 z-50 sticky flex flex-row px-6 items-center justify-between bg-thought-50 rounded-full m-4 shadow-lg opacity-85 hover:opacity-100 transition-opacity duration-400">
@@ -101,7 +112,7 @@ function Home() {
           <span className="text-thought-100 lowercase">thought</span>
           <span className="text-hub-100 capitalize">Hub</span>
         </a>
-        <div className="hidden max-md:hidden md:flex items-center justify-between space-x-10">
+        <div className="hidden max-lg:text-sm max-md:hidden md:flex items-center justify-between space-x-10">
           {navBarItems.map((item) => (
             <button
               className="cursor-pointer hover:text-thought-100"
@@ -137,7 +148,7 @@ function Home() {
         </div>
 
         <div className="flex items-center space-x-4">
-          <button className="hidden md:block rounded-xl bg-thought-100 p-2 px-3 justify-center text-white hover:bg-hub-100 transition-all duration-300 ease-linear" onClick={handleNewBlogModal}>
+          <button className="max-md:hidden md:block rounded-xl bg-thought-100 p-2 px-3 justify-center text-white hover:bg-hub-100 transition-all duration-300 ease-linear" onClick={handleNewBlogModal}>
             {isSmallScreen ? "+" : "+ New Blog"}
           </button>
           <GrUserManager
@@ -146,7 +157,7 @@ function Home() {
           />
 
           <button
-            className="md:hidden text-thought-100"
+            className="block min-cus-md:hidden text-thought-100"
             onClick={handleClickOnMenu}
           >
             {openMenu ? (
@@ -157,11 +168,17 @@ function Home() {
           </button>
         </div>
       </header>
-
+      {alertMessage && (
+        <Alert
+          type={alertType}
+          message={alertMessage}
+          onClose={() => setAlertMessage("")}
+        />
+      )}
       {openMenu && (
         <div
           ref={menuRef}
-          className="md:hidden w-full fixed top-20 bg-thought-50 p-4 z-50 shadow-lg rounded-3xl max-h-[75vh] overflow-y-auto"
+          className="min-cus-md:hidden w-full fixed top-20 bg-thought-50 p-4 z-50 shadow-lg rounded-3xl max-h-[75vh] overflow-y-auto"
         >
           <div className="flex flex-col space-y-4">
             {navBarItems.map((item) => (
@@ -223,9 +240,8 @@ function Home() {
           <SearchBar />
         </div>
         <div className='relative z-10'>
-          <Shimmer />
+        <FetchBlogs />
         </div>
-
         {modalOpen && <NewBlogModal isOpen={modalOpen} onClose = {()=>setModalOpen(false)}/>}
       </div>
     </div>
