@@ -6,6 +6,7 @@ import "./Home.css";
 import { useLogout } from "../../contexts/useLogout";
 import {Shimmer} from "./shimmer";
 import { NewBlogModal } from "../Blog/newblog";
+import Footer from "../Footer/Footer";
 
 function Home() {
   const [dropDown, setDropDown] = useState(false);
@@ -227,6 +228,9 @@ function Home() {
         </div>
 
         {modalOpen && <NewBlogModal isOpen={modalOpen} onClose = {()=>setModalOpen(false)}/>}
+        <div className="absolute w-full">
+              <Footer isModalOpen={modalOpen} />
+            </div>          
       </div>
     </div>
   );
