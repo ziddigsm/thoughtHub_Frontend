@@ -103,7 +103,7 @@ function Home() {
   },[]);
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="header top-0 z-50 sticky flex flex-row px-6 items-center justify-between bg-thought-50 rounded-full m-4 shadow-lg opacity-85 hover:opacity-100 transition-opacity duration-400">
+      <header className="header top-0 z-50 sticky flex flex-row px-6 items-center justify-between bg-thought-50/70 rounded-full backdrop-blur-lg m-4 shadow-lg  hover:opacity-100 transition-all duration-400">
         <a
           href="/home"
           className="text-xl font-bold p-4"

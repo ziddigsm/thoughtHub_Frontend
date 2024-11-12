@@ -18,14 +18,15 @@ function Login() {
   };
 
   const fetchBlogs = async () => {
-    const blogIds = [21];
+    const blogIds = [0];
+    console.log(import.meta.env.VITE_GET_BLOG_DATA_GO_API + parseInt(blogIds[0]) + '&limit=9&offset=0')
     try {
       const blogRequests = blogIds.map((id) =>
-        axios.get(`${import.meta.env.VITE_GET_USER_DATA_GO_API + parseInt(id)}`)
+        axios.get(`${import.meta.env.VITE_GET_BLOG_DATA_GO_API + parseInt(id) + '&limit=9&offset=0'}`)
       );
       const responses = await Promise.all(blogRequests);
       const blogs = responses.map((response) => {
-        return response.data;
+        return response.data.blogs;
       });
       setBlogPosts(blogs.flat());
     } catch (error) {
