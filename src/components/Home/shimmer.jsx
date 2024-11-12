@@ -1,4 +1,5 @@
 import { FaComment, FaHeart } from "react-icons/fa";
+import PropTypes from 'prop-types';
 
 export function Shimmer() {
     return (
@@ -14,7 +15,7 @@ export function Shimmer() {
 
 export function BlogCard({ index, isData, blog }) {
     return (
-        <div key={index} className="flex flex-col bg-thought-75 h-auto w-full p-2 hover:scale-105 transition-transform ease-in-out rounded-2xl md:w-72 xl:w-96">
+        <div key={index} className="flex flex-col bg-thought-75 h-auto w-full p-2 hover:scale-105 transition-all duration-500 ease-in-out rounded-2xl md:w-72 xl:w-96">
             <div className={`bg-thought-75 h-44 w-full rounded-xl overflow-hidden ${isData ? '' : 'animate-pulse'}`}>
                 {isData ? (
                     <img
@@ -35,7 +36,7 @@ export function BlogCard({ index, isData, blog }) {
             <div className={` ${isData ? '' : 'bg-gray-200 h-3 w-full mt-2 max-sm:hidden animate-pulse'}`}></div>
             <div className={` ${isData ? '' : 'bg-gray-200 h-3 w-5/6 mt-2 max-sm:hidden animate-pulse'}`}></div>
             <div className={`flex flex-grow justify-between items-center mt-4 ${isData ? '' : 'animate-pulse'}`}>
-                <div className={`font-semibold italic ${isData ? '' : 'h-4 bg-gray-200 w-5/6'}`}>
+                <div className={`font-semibold ${isData ? '' : 'h-4 bg-gray-200 w-5/6'}`}>
                     {isData ? blog.blog_data.name : ''}
                 </div>
                 <div className="flex flex-row space-x-4 items-center">
@@ -49,4 +50,10 @@ export function BlogCard({ index, isData, blog }) {
             </div>
         </div>
     );
+}
+
+BlogCard.propTypes = {
+    index: PropTypes.number.isRequired,
+    isData: PropTypes.bool.isRequired,
+    blog: PropTypes.object
 }

@@ -57,8 +57,8 @@ export function FetchBlogs() {
     }, [page]);
 
     return (
-        <div className="flex flex-col">
-            <div className=" relative grid grid-cols-1 md:grid-cols-2 justify-items-center lg:grid-cols-3 p-10 w-full gap-y-12 z-10 sm:justify-items-center drop-shadow-2xl">
+        <div className="flex flex-col items-center mb-11 font-sans">
+            <div className=" relative grid grid-cols-1  md:grid-cols-2 justify-items-center lg:grid-cols-3 p-10 w-full gap-y-12 z-10 sm:justify-items-center drop-shadow-2xl">
             {loading ? (
                 [...Array(9)].map((_, index) => (
                     <BlogCard key={index} index={index} isData={false} />

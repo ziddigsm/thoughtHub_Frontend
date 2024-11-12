@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import PropTypes from 'prop-types';
 
 export function Alert({ type, message, onClose }) {
   const getAlertStyle = () => {
@@ -38,4 +39,10 @@ export function Alert({ type, message, onClose }) {
       </button>
     </div>
   );
+}
+
+Alert.propTypes = {
+    type: PropTypes.string.isRequired,
+    message: PropTypes.string.isRequired,
+    onClose: PropTypes.func.isRequired
 }

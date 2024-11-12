@@ -121,11 +121,9 @@ function Login() {
         activeSection === 'hero' ? 'opacity-100' : 'opacity-50'
       }`}>
     
-        <h1 className="text-4xl sm:text-5xl md:text-7xl p-1 font-bold tracking-tight max-w-4xl mb-8 bg-gradient-to-r from-[#198b91] to-[#2b3759] bg-clip-text text-transparent ">
+        <h1 className="text-4xl sm:text-5xl md:text-7xl p-1 font-bold tracking-tight max-w-4xl mb-8 bg-gradient-to-r from-thought-100 to-hub-100 bg-clip-text text-transparent ">
           Welcome to Thoughthub.
-        </h1>
-      
-        
+        </h1>  
         <p className="text-xl md:text-2xl text-gray-600 max-w-2xl mb-12 leading-relaxed">
           Experience a new way of sharing ideas. Clean, minimal, and focused on what matters most — your content.
         </p>
