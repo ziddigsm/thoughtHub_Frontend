@@ -107,10 +107,10 @@ function Home() {
       <header className="header top-0 z-50 sticky flex flex-row px-6 items-center justify-between bg-thought-50/70 rounded-full backdrop-blur-lg mt-4 mx-4 shadow-lg  hover:opacity-100 transition-all duration-400">
         <a
           href="/home"
-          className="text-xl font-bold p-4"
+          className="text-2xl font-bold p-3"
           style={{ textShadow: "4px 4px 10px rgba(0, 0, 0, 0.2)" }}
         >
-          <span className="text-thought-100 lowercase">thought</span>
+          <span className="text-thought-100 capitalize">thought</span>
           <span className="text-hub-100 capitalize">Hub</span>
         </a>
         <div className="hidden max-lg:text-sm max-md:hidden md:flex items-center justify-between space-x-10">
