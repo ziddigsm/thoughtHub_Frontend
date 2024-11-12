@@ -5,6 +5,7 @@ import { GiHamburgerMenu } from "react-icons/gi";
 import "./Home.css";
 import { useLogout } from "../../contexts/useLogout";
 import { NewBlogModal } from "../Blog/newblog";
+import Footer from "../Footer/Footer";
 import  { FetchBlogs }  from '../Blog/blog';
 import { Alert } from "../Settings/alert";
 
@@ -243,6 +244,9 @@ function Home() {
         <FetchBlogs />
         </div>
         {modalOpen && <NewBlogModal isOpen={modalOpen} onClose = {()=>setModalOpen(false)}/>}
+        <div className="absolute w-full">
+              <Footer isModalOpen={modalOpen} />
+            </div>          
       </div>
     </div>
   );

@@ -1,233 +1,246 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import GoogleLoginComponent from "../GoogleLogin/google";
-import { FaThumbsUp, FaComment, FaHeart, FaSearch } from "react-icons/fa";
+import { FaSearch, FaHeart, FaComment } from "react-icons/fa";
+import Footer from "../Footer/Footer";
+import LoadingSpinner from "./LoadingSpinner";
+import {limitOffsetForLoginPage} from "../../utils/constants"
 
 function Login() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [footerVisible, setFooterVisible] = useState(false);
   const [blogPosts, setBlogPosts] = useState([]);
+  const [filteredPosts, setFilteredPosts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [activeSection, setActiveSection] = useState('hero');
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
 
-  const openSignInModal = () => {
-    setIsModalOpen(true);
+  const fetchBlogs = async () => {
+    const blogIds = [0];
+    setIsLoading(true);
+    try {
+      const blogRequests = blogIds.map((id) =>
+        axios.get(`${import.meta.env.VITE_GET_BLOG_DATA_GO_API + parseInt(id) + limitOffsetForLoginPage} `)
+      );
+      const responses = await Promise.all(blogRequests);
+      const blogs = responses.map((response) => response.data?.blogs);
+      setBlogPosts(blogs.flat());
+      setFilteredPosts(blogs.flat()); 
+    } catch (error) {
+      console.error("Error fetching blogs:", error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchBlogs();
+    
+    const handleScroll = () => {
+      const scrolled = window.scrollY;
+      const windowHeight = window.innerHeight;
+      const fullHeight = document.documentElement.scrollHeight;
+      
+      const progress = (scrolled / (fullHeight - windowHeight)) * 100;
+      setScrollProgress(progress);
+
+      if (scrolled < windowHeight * 0.5) {
+        setActiveSection('hero');
+      } else {
+        setActiveSection('content');
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const searchPosts = () => {
+      const query = searchQuery.toLowerCase().trim();
+      if (!query) {
+        setFilteredPosts(blogPosts); 
+        return;
+      }
+
+      const filtered = blogPosts.filter((post) => {
+        const title = post.blog_data.title.toLowerCase();
+        const content = post.blog_data.content.toLowerCase();
+        return title.includes(query) || content.includes(query);
+      });
+
+      setFilteredPosts(filtered);
+    };
+
+    searchPosts();
+  }, [searchQuery, blogPosts]);
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    window.scrollTo({ 
+      top: window.innerHeight, 
+      behavior: 'smooth' 
+    });
   };
 
   const closeSignInModal = () => {
     setIsModalOpen(false);
   };
 
-  const fetchBlogs = async () => {
-    const blogIds = [0];
-    console.log(import.meta.env.VITE_GET_BLOG_DATA_GO_API + parseInt(blogIds[0]) + '&limit=9&offset=0')
-    try {
-      const blogRequests = blogIds.map((id) =>
-        axios.get(`${import.meta.env.VITE_GET_BLOG_DATA_GO_API + parseInt(id) + '&limit=9&offset=0'}`)
-      );
-      const responses = await Promise.all(blogRequests);
-      const blogs = responses.map((response) => {
-        return response.data.blogs;
-      });
-      setBlogPosts(blogs.flat());
-    } catch (error) {
-      console.error("Error fetching blogs:", error.message);
-      if (error.response) {
-        console.error("Response data:", error.response.data);
-        console.error("Response status:", error.response.status);
-      } else if (error.request) {
-        console.error("No response received:", error.request);
-      } else {
-        console.error("Unexpected error:", error.message);
-      }
-    }
-  };
-
-  useEffect(() => {
-    fetchBlogs();
-  }, []);
-
-  const handleSearchChange = (event) => {
-    setSearchQuery(event.target.value);
-  };
-
-  const filteredPosts = blogPosts.filter((post) =>
-    post.blog_data.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const getRandomDelay = () => `${Math.random() * 0.5 + 0.1}s`;
-
-  const handleScroll = () => {
-    if (
-      window.innerHeight + window.scrollY >=
-      document.body.scrollHeight - 50
-    ) {
-      setFooterVisible(true);
-    }
-  };
-
-  useEffect(() => {
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
   return (
-    <div className="min-h-screen flex flex-col bg-[#ffffff] text-white font-sans">
-      <div className="flex flex-1">
-        <header
-          className={`${
-            isModalOpen ? "blur-sm" : ""
-          } bg-white text-[#323232] p-5 w-1/2 flex flex-col items-center justify-center text-center`}
-        >
+    <div className="min-h-screen bg-stone-50 text-black font-sans overflow-x-hidden">
+      <div 
+        className="fixed top-0 left-0 w-full h-0.5 bg-gray-200 z-50"
+      >
+        <div 
+          className="h-full bg-black transition-all duration-300 ease-out"
+          style={{ width: `${scrollProgress}%` }}
+        />
+      </div>
+      <div className={`${isModalOpen ? 'blur-sm' : ''} transition-all duration-300`}>
+
+      <nav className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-lg z-40 transition-all duration-300">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
           <div
-            className="text-4xl font-bold mb-6"
-            style={{ textShadow: "4px 4px 10px rgba(0, 0, 0, 0.2)" }}
+            className="text-4xl font-bold "
+            style={{ textShadow: "4px 9px 10px rgba(0, 0, 0, 0.2)" }}
           >
             <span className="text-[#198b91] lowercase">thought</span>
             <span className="text-[#2b3759] capitalize">Hub</span>
           </div>
-          <h1 className="text-3xl mb-6 font-semibold">
-            A Modern, Minimalist Blog Channel
-          </h1>
-          <p className="text-xl mb-6 italic text-gray-600">
-            Welcome to ThoughtHub, a blog that offers a refreshing take on
-            modern topics.
-          </p>
-          <GoogleLoginComponent isInModal={false} />
-        </header>
+            <div className="flex items-center space-x-4">
+              <GoogleLoginComponent isInModal={false} />
+            </div>
+          </div>
+        </div>
+      </nav>
 
-        <section
-          className={`relative w-1/2 bg-[url('src/assets/bg.jpg')] bg-cover bg-center p-12 ${
-            isModalOpen ? "blur-sm" : ""
+      <section className={`min-h-screen pt-24 px-4 flex flex-col justify-center items-center text-center transition-opacity duration-700 ${
+        activeSection === 'hero' ? 'opacity-100' : 'opacity-50'
+      }`}>
+    
+        <h1 className="text-4xl sm:text-5xl md:text-7xl p-1 font-bold tracking-tight max-w-4xl mb-8 bg-gradient-to-r from-[#198b91] to-[#2b3759] bg-clip-text text-transparent ">
+          Welcome to Thoughthub.
+        </h1>
+      
+        
+        <p className="text-xl md:text-2xl text-gray-600 max-w-2xl mb-12 leading-relaxed">
+          Experience a new way of sharing ideas. Clean, minimal, and focused on what matters most — your content.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-4 mb-8">
+          <button onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })} 
+            className="px-8 py-4 bg-black text-white rounded-full text-lg font-medium hover:bg-gray-900 transition-all duration-300">
+            Explore Stories
+          </button>
+          <button 
+            className="px-8 py-4 bg-gray-100 text-black rounded-full text-lg font-medium hover:bg-gray-200 transition-all duration-300"
+            onClick={() => setIsModalOpen(true)}
+            
+          >
+            Start Writing
+
+          </button>
+        </div>
+
+        <form 
+          onSubmit={handleSearchSubmit} 
+          className={`w-full max-w-2xl transform transition-all duration-300 ${
+            isSearchFocused ? 'scale-105' : 'scale-100'
           }`}
         >
-          <div className="absolute inset-0 bg-gradient-to-t from-transparent via-transparent to-[#ffffff] opacity-100"></div>
-
-          <div className="relative mb-10 flex items-center space-x-2 justify-end z-10">
-            <FaSearch className="text-sky-800 text-2xl" />
+          <div className="relative">
             <input
               type="text"
-              placeholder="Search blogs..."
+              placeholder="Search for stories..."
+              className="w-full px-6 py-4 bg-white border-2 border-gray-200 rounded-full text-lg focus:border-black focus:ring-2 focus:ring-black/5 transition-all duration-300"
               value={searchQuery}
-              onChange={handleSearchChange}
-              className="w-25 p-2 hover:scale-105 text-lg text-gray-600 rounded-lg bg-[#f8f9fa] border-2 border-black outline-none transition-transform"
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onFocus={() => setIsSearchFocused(true)}
+              onBlur={() => setIsSearchFocused(false)}
             />
-            <button className="bg-black text-white px-4 py-2 text-lg rounded-lg hover:bg-gray-800">
-              Search
+            <button 
+              type="submit"
+              className="absolute right-4 top-1/2 transform -translate-y-1/2 p-2 hover:bg-gray-100 rounded-full transition-all duration-300"
+            >
+              <FaSearch className="text-gray-400 w-5 h-5" />
             </button>
           </div>
+        </form>
+      </section>
 
-          <div className="flex flex-wrap gap-5 justify-around mt-20 z-10">
-            {filteredPosts.length > 0 ? (
+      <section className={`min-h-screen px-4 py-24 transition-opacity duration-700 ${
+        activeSection === 'content' ? 'opacity-100' : 'opacity-50'
+      }`}>
+        <div className="max-w-7xl mx-auto">
+          {searchQuery && (
+            <div className="mb-8">
+              <h2 className="text-2xl font-semibold">
+                {filteredPosts.length === 0 
+                  ? `No results found for "${searchQuery}"`
+                  : `Search results for "${searchQuery}"`
+                }
+              </h2>
+            </div>
+          )}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {isLoading ? (
+              <LoadingSpinner />
+            ) : filteredPosts.length === 0 && searchQuery ? (
+              <div className="col-span-full text-center py-12">
+                <p className="text-gray-600 text-lg">No matching stories found. Try a different search term.</p>
+              </div>
+            ) : (
               filteredPosts.map((post) => (
                 <div
                   key={post.blog_data.id}
-                  style={{
-                    animation: `slideInBounce 2s ease-out forwards`,
-                    animationDelay: getRandomDelay(),
-                  }}
-                  className="relative mb-6 overflow-hidden rounded-3xl shadow-xl w-[calc(50%-20px)] h-[300px] cursor-pointer group transform hover:scale-110 transition-transform ease-in-out"
-                  onClick={openSignInModal}
+                  className="flex-grow group relative overflow-hidden rounded-2xl bg-slate-100 transition-all duration-500 hover:scale-110 shadow-xl cursor-pointer"
+                  onClick={() => setIsModalOpen(true)}
                 >
-                  <div className="w-full h-full flex flex-col items-center">
-                    <div className="relative h-full w-full">
-                      <img
-                        src={`data:image/png;base64,${post.blog_data.blog_image}`}
-                        alt={post.blog_data.title}
-                        className="w-full h-full object-cover rounded-lg transition-transform duration-500 opacity-80 group-hover:brightness-50"
-                      />
-                      <div className="absolute text-2xl text-slate-200 font-bold inset-0 flex flex-col items-center justify-center text-center bg-black bg-opacity-40 group-hover:opacity-100 transition-opacity duration-500 p-4">
-                        <h1>{post.blog_data.title}</h1>
+                  <div className="aspect-[4/3] overflow-hidden">
+                    <img
+                      src={`data:image/png;base64,${post.blog_data.blog_image}`}
+                      alt={post.blog_data.title}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                  </div>
+                  <div className="p-6">
+                    <h2 className="text-2xl font-semibold mb-3 line-clamp-1">
+                      {post.blog_data.title}
+                    </h2>
+                    <p className="text-gray-600 line-clamp-3 mb-4">
+                      {post.blog_data.content}
+                    </p>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-4 text-sm text-gray-500">
+                        <span className="flex items-center">
+                          <FaHeart className="w-4 h-4 mr-1 text-red-500" />
+                          {post.likes}
+                        </span>
+                        <span className="flex items-center">
+                          <FaComment className="w-4 h-4 mr-1 text-blue-500" />
+                          {post.comments?.length || 0}
+                        </span>
                       </div>
-                      <div className="absolute top-5 right-5 flex items-center space-x-3 text-white text-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-in-out">
-                        <div className="flex items-center space-x-1">
-                          <FaHeart className="text-red-500" />{" "}
-                          <span>{post.likes}</span>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <FaComment className="text-blue-300" />{" "}
-                          <span>{post.comments?.length || 0}</span>
-                        </div>
-                      </div>
-                      <div className="absolute bottom-7 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 translate-y-full group-hover:translate-y-0 p-10 w-3/4 bg-teal-50 rounded-3xl shadow-lg transition-all duration-500 ease-in-out">
-                        <h2 className="text-gray-800 font-bold text-xl text-center">
-                          {post.blog_data.title}
-                        </h2>
-                        <p className="text-gray-600 text-center mt-2 text-base">
-                          {post.blog_data.content}
-                        </p>
-                        <a
-                          href="#"
-                          className="text-center hover:underline mt-3 block text-[#198b91] text-lg"
-                        >
-                          Read More
-                        </a>
-                      </div>
+                      <span className="text-sm font-medium text-black">Read more →</span>
                     </div>
                   </div>
                 </div>
               ))
-            ) : (
-              <p>No blog posts found.</p>
             )}
           </div>
-        </section>
-      </div>
-
-      <footer
-        className={`${
-          isModalOpen ? "blur-sm" : ""
-        } bg-black text-white text-center p-10 ${
-          footerVisible ? "animate-slideInFromLeft" : "opacity-0"
-        }`}
-        style={{
-          animation: footerVisible
-            ? "slideInFromLeft 1.5s ease-out forwards"
-            : "",
-          animationDelay: "0.5s",
-        }}
-      >
-        <div className="flex flex-col items-center">
-          <p className="text-lg font-bold mb-4">
-            &copy; 2024 ThoughtHub. All rights reserved.
-          </p>
-          <div className="flex space-x-8 mb-6">
-            <a href="#" className="text-gray-300 hover:text-white">
-              Home
-            </a>
-            <a href="#" className="text-gray-300 hover:text-white">
-              About Us
-            </a>
-            <a href="#" className="text-gray-300 hover:text-white">
-              Privacy Policy
-            </a>
-            <a href="#" className="text-gray-300 hover:text-white">
-              Contact
-            </a>
-          </div>
-          <div className="flex space-x-5 mb-6">
-            <a href="#" className="text-gray-300 hover:text-white">
-              <FaThumbsUp size={20} />
-            </a>
-            <a href="#" className="text-gray-300 hover:text-white">
-              <FaComment size={20} />
-            </a>
-            <a href="#" className="text-gray-300 hover:text-white">
-              <FaHeart size={20} />
-            </a>
-          </div>
-          <div className="text-sm text-gray-400">
-            <p>1234 Blog Street, Content City, CT 45678</p>
-            <p>Email: info@thoughthub.com</p>
-            <p>Phone: (123) 456-7890</p>
-          </div>
         </div>
-      </footer>
+      </section>
 
-      {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 z-50">
+      
+      <Footer isModalOpen={isModalOpen} />
+    </div>
+    {isModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black   bg-opacity-70 z-50">
           <div className="bg-white opacity-0 animate-popIn p-10 rounded-3xl shadow-lg text-center w-3/4 max-w-md relative">
-            <button
-              className="absolute top-3 right-3 text-gray-500 text-2xl font-bold"
+            <button 
+              className="absolute top-3 right-3 text-gray-500 text-2xl font-bold rounded-full w-8 h-8 flex items-center justify-center hover:bg-black hover:text-white transition duration-200" 
               onClick={closeSignInModal}
             >
               &times;
@@ -236,14 +249,15 @@ function Login() {
               Sign in to ThoughtHub
             </h2>
             <p className="text-gray-600 font mb-6">
-              You must be signed in to access the blog. Please sign in using
-              your Google account.
+              You must be signed in to access the blog. Please sign in using your Google account.
             </p>
-            <GoogleLoginComponent isInModal={true} />
+            <div className="flex justify-center">
+              <GoogleLoginComponent isInModal={true} />
+            </div>
           </div>
         </div>
       )}
-    </div>
+  </div>
   );
 }
 

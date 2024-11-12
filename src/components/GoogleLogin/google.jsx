@@ -28,6 +28,7 @@ const GoogleLoginComponent = ({ isInModal }) => {
         userData.name = response.data.name;
         userData.username = response.data.username;
         userData.is_active = response.data.is_active;
+        userData.socials = response.data.socials;  
         login(userData); 
         console.log("User Logged in successfully:", response.data);
         if (response.status === 200) {

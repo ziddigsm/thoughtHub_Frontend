@@ -1,85 +1,3 @@
-.custom-google-btn {
-  background-color: transparent;
-  color: #000;
-  padding: 10px 20px;
-  border: 2px solid #000000;
-  border-radius: 50px;
-  font-size: 16px;
-  font-family: 'Arial', sans-serif;
-  font-weight: bold;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  top: 40px;
-  right: 20px;
-}
-
-.custom-google-btn:active {
-  border-color: #555;
-}
-
-.google-logo {
-  margin-right: 10px;
-  font-weight: bold;
-  font-size: 18px;
-}
-
-.modal-btn {
-  background-color: transparent;
-  color: #000;
-  padding: 10px 20px;
-  border: 2px solid #000000;
-  border-radius: 50px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  margin-top: 20px;
-}
-
-.header-btn:active,
-.modal-btn:active {
-  border-color: #555;
-}
-
-.google-logo {
-  margin-right: 10px;
-  font-weight: bold;
-  font-size: 18px;
-}
-
-.custom-google-btn,
-.modal-btn {
-  background-color: transparent;
-  color: #000;
-  padding: 10px 20px;
-  border: 2px solid #000000;
-  border-radius: 50px;
-  font-size: 16px;
-  font-family: 'Arial', sans-serif;
-  font-weight: bold;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.custom-google-btn:hover,
-.modal-btn:hover {
-  background-color: #000;
-  color: #fff; 
-}
-
-.custom-google-btn:active,
-.modal-btn:active {
-  border-color: #555;
-}
-
-.google-logo {
-  margin-right: 10px;
-  font-weight: bold;
-  font-size: 18px;
-}
-
-
 .custom-google-btn,
 .modal-btn {
   display: flex;
@@ -115,4 +33,20 @@
 .custom-google-btn:active,
 .modal-btn:active {
   border-color: #555;
+}
+
+@media (max-width: 640px) {
+  .custom-google-btn,
+  .modal-btn {
+    padding: 10px;
+    font-size: 0; 
+    width: 40px; 
+    height: 40px; 
+    border-radius: 50%;
+  }
+
+  .google-logo {
+    margin-right: 0; 
+    font-size: 20px; 
+  }
 }
