@@ -5,7 +5,7 @@ export function Alert({ type, message, onClose }) {
   const getAlertStyle = () => {
     switch (type) {
       case "success":
-        return "bg-green-200 text-white border-green-400"; 
+        return "bg-green-200 text-gray-900 border-green-400"; 
       case "error":
         return "bg-red-100 text-red-700 border-red-400";
       case "warning":

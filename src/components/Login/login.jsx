@@ -17,13 +17,11 @@ function Login() {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
 
   const fetchBlogs = async () => {
-    const blogIds = [0];
+    const blogId = 0;
     setIsLoading(true);
     try {
-      const blogRequests = blogIds.map((id) =>
-        axios.get(`${import.meta.env.VITE_GET_BLOG_DATA_GO_API + parseInt(id) + limitOffsetForLoginPage} `)
-      );
-      const responses = await Promise.all(blogRequests);
+        const blogRequest = axios.get(`${import.meta.env.VITE_GET_BLOG_DATA_GO_API + parseInt(blogId) + limitOffsetForLoginPage} `)
+      const responses = await Promise.all(blogRequest);
       const blogs = responses.map((response) => response.data?.blogs);
       setBlogPosts(blogs.flat());
       setFilteredPosts(blogs.flat()); 

@@ -17,6 +17,7 @@ function Home() {
   const [modalOpen, setModalOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertType, setAlertType] = useState("");
+  const [isMyBlogs, setIsMyBlogs] = useState(false);
   const menuRef = useRef(null);
   const profileRef = useRef(null);
   const moreRef = useRef(null);
@@ -74,6 +75,12 @@ function Home() {
     navigate("/settings");
     setIsProfileOpen(false);
   };
+
+  const handleClickOnMyBlogs = () => {
+    setIsMyBlogs(true);
+    setIsProfileOpen(false);
+    console.log(isMyBlogs);
+  }
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -209,11 +216,11 @@ function Home() {
       {isProfileOpen && (
         <div
           ref={profileRef}
-          className="flex flex-col  fixed right-5 p-2 space-y-2 max-md:right-14 items-start z-20 bg-thought-50 shadow-lg rounded-lg top-20 "
+          className="flex flex-col fixed right-5 p-2 space-y-2 max-md:right-14 items-start z-20 bg-thought-50 shadow-lg rounded-lg top-20 "
         >
           <a
             className="hover:text-thought-100 cursor-pointer block w-full p-2"
-            onClick={handleClickOnSettings}
+            onClick={handleClickOnMyBlogs}
           >
             My Blogs
           </a>
@@ -244,7 +251,8 @@ function Home() {
         <SearchBar />
       </div>
       <div className="relative z-10">
-        <FetchBlogs />
+        {isMyBlogs && <FetchBlogs isMyBlogs={isMyBlogs} />}
+        {!isMyBlogs && <FetchBlogs isMyBlogs={false} />}
       </div>
       {modalOpen && <NewBlogModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />}
       <div className="absolute w-full">
