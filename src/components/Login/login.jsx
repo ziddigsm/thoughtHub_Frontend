@@ -21,7 +21,7 @@ function Login() {
     setIsLoading(true);
     try {
         const blogRequest = axios.get(`${import.meta.env.VITE_GET_BLOG_DATA_GO_API + parseInt(blogId) + limitOffsetForLoginPage} `)
-      const responses = await Promise.all(blogRequest);
+      const responses = await Promise.all([blogRequest]);
       const blogs = responses.map((response) => response.data?.blogs);
       setBlogPosts(blogs.flat());
       setFilteredPosts(blogs.flat()); 
