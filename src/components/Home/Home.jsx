@@ -17,6 +17,7 @@ function Home() {
   const [modalOpen, setModalOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertType, setAlertType] = useState("");
+  const [isMyBlogs, setIsMyBlogs] = useState(false);
   const menuRef = useRef(null);
   const profileRef = useRef(null);
   const moreRef = useRef(null);
@@ -75,6 +76,12 @@ function Home() {
     setIsProfileOpen(false);
   };
 
+  const handleClickOnMyBlogs = () => {
+    setIsMyBlogs(true);
+    setIsProfileOpen(false);
+    console.log(isMyBlogs);
+  }
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -104,13 +111,13 @@ function Home() {
   },[]);
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="header top-0 z-50 sticky flex flex-row px-6 items-center justify-between bg-thought-50 rounded-full m-4 shadow-lg opacity-85 hover:opacity-100 transition-opacity duration-400">
+      <header className="header top-0 z-50 sticky flex flex-row px-6 items-center justify-between bg-thought-50/70 rounded-full backdrop-blur-lg mt-4 mx-4 shadow-lg  hover:opacity-100 transition-all duration-400">
         <a
           href="/home"
-          className="text-xl font-bold p-4"
+          className="text-2xl font-bold p-3"
           style={{ textShadow: "4px 4px 10px rgba(0, 0, 0, 0.2)" }}
         >
-          <span className="text-thought-100 lowercase">thought</span>
+          <span className="text-thought-100 capitalize">thought</span>
           <span className="text-hub-100 capitalize">Hub</span>
         </a>
         <div className="hidden max-lg:text-sm max-md:hidden md:flex items-center justify-between space-x-10">
@@ -209,11 +216,11 @@ function Home() {
       {isProfileOpen && (
         <div
           ref={profileRef}
-          className="flex flex-col  fixed right-5 p-2 space-y-2 max-md:right-14 items-start z-20 bg-thought-50 shadow-lg rounded-lg top-20 "
+          className="flex flex-col fixed right-5 p-2 space-y-2 max-md:right-14 items-start z-20 bg-thought-50 shadow-lg rounded-lg top-20 "
         >
           <a
             className="hover:text-thought-100 cursor-pointer block w-full p-2"
-            onClick={handleClickOnSettings}
+            onClick={handleClickOnMyBlogs}
           >
             My Blogs
           </a>
@@ -233,21 +240,25 @@ function Home() {
         </div>
       )}
       <div className="relative flex-grow">
-        <div
-          className="absolute inset-1 bg-cover bg-center rounded-lg m-3 bg-[url('src/assets/bg.jpg')]"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-transparent via-transparent to-[#ffffff] opacity-100 z-0"></div>
-        <div className="relative flex items-center justify-center px-4 py-8 sm:py-12 md:py-16 lg:py-20">
-          <SearchBar />
-        </div>
-        <div className='relative z-10'>
-        <FetchBlogs />
-        </div>
-        {modalOpen && <NewBlogModal isOpen={modalOpen} onClose = {()=>setModalOpen(false)}/>}
-        <div className="absolute w-full">
-              <Footer isModalOpen={modalOpen} />
-            </div>          
+      <div className="absolute inset-0 bg-hub-50">
+        <div className=" w-[40%] h-[60%] rounded-full bg-thought-100 blur-[80px] opacity-30" />
+        <div className="absolute top-[30%] right-[-5%] w-[45%] h-[40%] rounded-full bg-hub-100 blur-[100px] opacity-40" />
+        <div className="absolute bottom-[-10%] left-[20%] w-[50%] h-[50%] rounded-full bg-thought-200 blur-[90px] opacity-20" />
       </div>
+      <div className="absolute inset-0 bg-gradient-to-t from-transparent via-transparent to-[#ffffff] opacity-100 z-0" />
+      <div className="absolute inset-0 bg-thought-50/30" />
+      <div className="relative flex items-center justify-center px-4 py-8 sm:py-12 md:py-16 lg:py-20">
+        <SearchBar />
+      </div>
+      <div className="relative z-10">
+        {isMyBlogs && <FetchBlogs isMyBlogs={isMyBlogs} />}
+        {!isMyBlogs && <FetchBlogs isMyBlogs={false} />}
+      </div>
+      {modalOpen && <NewBlogModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />}
+      <div className="absolute w-full">
+        <Footer isModalOpen={modalOpen} />
+      </div>
+    </div>
     </div>
   );
 }
@@ -267,11 +278,11 @@ function SearchBar() {
   }, []);
 
   return (
-    <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 md:px-8">
-      <div className="search-bar flex flex-row items-center p-2 rounded-full bg-thought-50 backdrop-blur-sm shadow-lg">
+    <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 md:px-8 ">
+      <div className="search-bar flex flex-row items-center p-2 rounded-full bg-thought-50 backdrop-blur-sm shadow-lg ">
         <GrSearch className="ml-3 text-thought-200" />
         <input
-          className="search-input flex-grow px-4 py-2 rounded-full bg-transparent focus:outline-none placeholder-gray-500"
+          className="search-input flex-grow px-4 py-2 rounded-full bg-transparent focus:outline-none placeholder-gray-500 "
           placeholder="Search for blogs"
         />
         <button className="p-1 px-4 py-2 max-md:p-0 max-md:w-10 max-md:h-10 bg-thought-100 rounded-full text-white hover:bg-hub-100 transition-colors duration-200 flex items-center justify-center">
