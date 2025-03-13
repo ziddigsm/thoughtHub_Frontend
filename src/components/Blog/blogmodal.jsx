@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import {
   FaComment,
@@ -14,7 +14,16 @@ import {
 } from "react-icons/fa";
 
 export function BlogModal({ blog, isOpen, onClose, onAddComment }) {
-  if (!isOpen) return null;
+
+  const modalRef = useRef(null);
+  
+  useEffect(() => {
+    if( isOpen && modalRef.current) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [isOpen]);
+  
+
 
   const [newComment, setNewComment] = useState("");
   const [activeTab, setActiveTab] = useState("content");
@@ -29,6 +38,8 @@ export function BlogModal({ blog, isOpen, onClose, onAddComment }) {
 
     setReadTime(Math.ceil(wordCount / 225));
   }, [blog.blog_data.content]);
+
+  if (!isOpen) return null;
 
   const handleCommentChange = (e) => {
     setNewComment(e.target.value);
@@ -80,11 +91,12 @@ export function BlogModal({ blog, isOpen, onClose, onAddComment }) {
     "about",
     ...(summary ? ["summary"] : []),
   ];
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-b from-white/40 via-gray-900/60 to-black/70 backdrop-blur-sm p-4">
-      <div className="fixed inset-0 cursor-pointer" onClick={onClose}></div>
-
+    <div className="fixed  z-50 flex justify-center   p-10">
+<div 
+  className="fixed inset-0 cursor-pointer bg-gradient-to-b from-transparent via-gray-900/60 to-transparent backdrop-blur-sm" 
+  onClick={onClose}
+></div>
       <div className="relative w-full max-w-4xl mx-auto bg-white/95 rounded-2xl shadow-2xl border border-gray-200 overflow-hidden">
         {/* Header */}
         <div className="bg-white/90 border-b border-gray-200 p-6">

@@ -16,7 +16,6 @@ export function NewBlogModal({ isOpen, onClose }) {
   const [alertMessage, setAlertMessage] = useState("");
   const [alertType, setAlertType] = useState("");
 
-  // Quill editor modules and formats configuration
   const modules = {
     toolbar: [
       [{ header: [1, 2, 3, 4, 5, 6, false] }],

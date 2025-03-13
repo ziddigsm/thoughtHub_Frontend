@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import GoogleLoginComponent from "../GoogleLogin/google";
 import { FaSearch, FaHeart, FaComment } from "react-icons/fa";
-import Footer from "../Footer/Footer";
-import LoadingSpinner from "./loadingSpinner";
+import Footer from "../Footer/footer";
+import LoadingSpinner from "./LoadingSpinner";
 import { limitOffsetForLoginPage } from "../../utils/constants";
 
 function Login() {

@@ -6,7 +6,7 @@ import { FaHeart, FaComment } from "react-icons/fa";
 import "./Home.css";
 import { useLogout } from "../../contexts/useLogout";
 import { NewBlogModal } from "../Blog/newblog";
-import Footer from "../Footer/Footer";
+import Footer from "../Footer/footer";
 import { FetchBlogs } from "../Blog/blog";
 import { Alert } from "../Settings/alert";
 import { BlogModal } from "./BlogModal";
