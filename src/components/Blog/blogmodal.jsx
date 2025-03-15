@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import {
   FaComment,
@@ -14,16 +14,12 @@ import {
 } from "react-icons/fa";
 
 export function BlogModal({ blog, isOpen, onClose, onAddComment }) {
-
   const modalRef = useRef(null);
-  
   useEffect(() => {
-    if( isOpen && modalRef.current) {
-      window.scrollTo({ top: 0, behavior: "smooth" });
+    if (isOpen && modalRef.current) {
+      window.scrollTo({ top: 170, behavior: "smooth" });
     }
   }, [isOpen]);
-  
-
 
   const [newComment, setNewComment] = useState("");
   const [activeTab, setActiveTab] = useState("content");
@@ -34,8 +30,6 @@ export function BlogModal({ blog, isOpen, onClose, onAddComment }) {
 
   useEffect(() => {
     const wordCount = blog.blog_data.content.split(/\s+/).length;
-    console.log("Blog Content:", blog.blog_data.content);
-
     setReadTime(Math.ceil(wordCount / 225));
   }, [blog.blog_data.content]);
 
@@ -56,8 +50,6 @@ export function BlogModal({ blog, isOpen, onClose, onAddComment }) {
     setError(null);
 
     try {
-      console.log("Fetching summary for blog ID:", blog.blog_data.id);
-
       const response = await fetch("http://127.0.0.1:5000/summarize", {
         method: "POST",
         headers: {
@@ -72,8 +64,6 @@ export function BlogModal({ blog, isOpen, onClose, onAddComment }) {
       }
 
       const data = await response.json();
-      console.log("Received summary data:", data);
-
       setSummary(data.summary);
       setActiveTab("summary");
     } catch (err) {
@@ -84,20 +74,23 @@ export function BlogModal({ blog, isOpen, onClose, onAddComment }) {
     }
   };
 
-  // Add "summary" to the available tabs
   const tabs = [
     "content",
     "comments",
     "about",
     ...(summary ? ["summary"] : []),
   ];
+
   return (
-    <div className="fixed  z-50 flex justify-center   p-10">
-<div 
-  className="fixed inset-0 cursor-pointer bg-gradient-to-b from-transparent via-gray-900/60 to-transparent backdrop-blur-sm" 
-  onClick={onClose}
-></div>
-      <div className="relative w-full max-w-4xl mx-auto bg-white/95 rounded-2xl shadow-2xl border border-gray-200 overflow-hidden">
+    <div className="fixed z-50 flex justify-center p-10">
+      <div
+        className="fixed inset-0 cursor-pointer bg-gradient-to-b from-transparent via-gray-900/60 to-transparent backdrop-blur-sm"
+        onClick={onClose}
+      ></div>
+      <div
+        ref={modalRef}
+        className="relative w-full max-w-4xl mx-auto bg-white/95 rounded-2xl shadow-2xl border border-gray-200 overflow-hidden"
+      >
         {/* Header */}
         <div className="bg-white/90 border-b border-gray-200 p-6">
           <div className="flex justify-between items-start">
@@ -152,17 +145,29 @@ export function BlogModal({ blog, isOpen, onClose, onAddComment }) {
         {/* Navigation Tabs */}
         <div className="flex border-b border-gray-200">
           {tabs.map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`flex-1 py-4 text-center uppercase tracking-wide text-sm font-semibold transition-colors ${
-                activeTab === tab
-                  ? "text-black border-b-2 border-black"
-                  : "text-gray-500 hover:bg-gray-100"
-              }`}
-            >
-              {tab}
-            </button>
+            <div key={tab} className="group relative flex-1">
+              <button
+                onClick={() => setActiveTab(tab)}
+                className={`w-full py-4 text-center uppercase tracking-wide text-sm font-semibold transition-colors ${
+                  activeTab === tab
+                    ? "text-black border-b-2 border-black"
+                    : "text-gray-500 hover:bg-gray-100"
+                } ${
+                  tab === "comments" || tab === "about"
+                    ? "pointer-events-none opacity-50"
+                    : ""
+                }`}
+              >
+                {tab}
+              </button>
+
+              {/* Hover Message for "comments" and "about" tabs */}
+              {(tab === "comments" || tab === "about") && (
+                <div className="absolute hidden group-hover:block z-50 bg-thought-75 text-hub-100 text-sm p-2 rounded mt-2 top-full left-1/2 transform -translate-x-1/2 whitespace-nowrap">
+                  {`Coming soon`}
+                </div>
+              )}
+            </div>
           ))}
         </div>
 

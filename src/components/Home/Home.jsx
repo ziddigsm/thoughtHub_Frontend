@@ -1,16 +1,17 @@
 import { useState, useRef, useEffect } from "react";
+import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
 import { GrClose, GrSearch, GrUserManager } from "react-icons/gr";
 import { GiHamburgerMenu } from "react-icons/gi";
-import { FaHeart, FaComment } from "react-icons/fa";
+// import { FaHeart, FaComment } from "react-icons/fa";
 import "./Home.css";
 import { useLogout } from "../../contexts/useLogout";
 import { NewBlogModal } from "../Blog/newblog";
 import Footer from "../Footer/footer";
 import { FetchBlogs } from "../Blog/blog";
 import { Alert } from "../Settings/alert";
-import { BlogModal } from "./BlogModal";
-import axios from "axios";
+// import { BlogModal } from "./BlogModal";
+// import axios from "axios";
 
 function SearchBar({ searchQuery, setSearchQuery, setIsSearching }) {
   const [isSmallScreen, setIsSmallScreen] = useState(false);
@@ -78,6 +79,11 @@ function SearchBar({ searchQuery, setSearchQuery, setIsSearching }) {
     </div>
   );
 }
+SearchBar.propTypes = {
+  searchQuery: PropTypes.string.isRequired,
+  setSearchQuery: PropTypes.func.isRequired,
+  setIsSearching: PropTypes.func.isRequired,
+};
 
 function Home() {
   const [dropDown, setDropDown] = useState(false);
@@ -90,7 +96,7 @@ function Home() {
   const [isMyBlogs, setIsMyBlogs] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
-  const [selectedBlog, setSelectedBlog] = useState(null);
+  //const [selectedBlog, setSelectedBlog] = useState(null);
   const menuRef = useRef(null);
   const profileRef = useRef(null);
   const moreRef = useRef(null);
@@ -132,10 +138,10 @@ function Home() {
     setModalOpen(!modalOpen);
   };
 
-  const handleClickOnBlogCard = (blog) => {
-    setSelectedBlog(blog);
-    setModalOpen(true);
-  };
+  // const handleClickOnBlogCard = (blog) => {
+  //   //setSelectedBlog(blog);
+  //   setModalOpen(true);
+  // };
 
   useEffect(() => {
     const handleResize = () => {
@@ -184,7 +190,8 @@ function Home() {
       setAlertType("success");
     };
     window.addEventListener("newBlogSuccess", handleBlogSuccess);
-    return () => window.removeEventListener("newBlogSuccess", handleBlogSuccess);
+    return () =>
+      window.removeEventListener("newBlogSuccess", handleBlogSuccess);
   }, []);
 
   return (
@@ -330,14 +337,12 @@ function Home() {
         </div>
       )}
 
-      <div className="relative flex-grow">
-        <div className="absolute inset-0 bg-hub-50">
-          <div className="w-[40%] h-[60%] rounded-full bg-thought-100 blur-[80px] opacity-30" />
-          <div className="absolute top-[30%] right-[-5%] w-[45%] h-[40%] rounded-full bg-hub-100 blur-[100px] opacity-40" />
-          <div className="absolute bottom-[-10%] left-[20%] w-[50%] h-[50%] rounded-full bg-thought-200 blur-[90px] opacity-20" />
+      <div className="flex-grow flex flex-col">
+        <div className="fixed inset-0 overflow-hidden z-0">
+          <div className="absolute w-[40vw] h-[60vh] -top-[10vh] -left-[10vw] rounded-full bg-thought-100 blur-[80px] opacity-30" />
+          <div className="absolute w-[45vw] h-[40vh] top-[30%] -right-[5vw] rounded-full bg-hub-100 blur-[100px] opacity-40" />
+          <div className="absolute w-[50vw] h-[50vh] -bottom-[10vh] -left-[5vw] rounded-full bg-thought-200 blur-[90px] opacity-20" />
         </div>
-        <div className="absolute inset-0 bg-gradient-to-t from-transparent via-transparent to-[#ffffff] opacity-100 z-0" />
-        <div className="absolute inset-0 bg-thought-50/30" />
 
         <div className="relative flex items-center justify-center px-4 py-8 sm:py-12 md:py-16 lg:py-20">
           <SearchBar
@@ -370,7 +375,7 @@ function Home() {
           />
         )}
 
-        <div className="absolute w-full">
+        <div className="w-full">
           <Footer isModalOpen={modalOpen} />
         </div>
       </div>
