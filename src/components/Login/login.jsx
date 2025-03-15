@@ -17,6 +17,12 @@ function Login() {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [error, setError] = useState(null);
 
+  const stripHtml = (html) => {
+    const tmp = document.createElement("DIV");
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || "";
+  };
+
   const fetchBlogs = async () => {
     const blogId = 0;
     setIsLoading(true);
@@ -132,7 +138,7 @@ function Login() {
             {post.blog_data.title || 'Untitled'}
           </h2>
           <p className="text-gray-600 line-clamp-3 mb-4">
-            {post.blog_data.content || 'No content available'}
+            {stripHtml(post.blog_data.content) || 'No content available'}
           </p>
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4 text-sm text-gray-500">
