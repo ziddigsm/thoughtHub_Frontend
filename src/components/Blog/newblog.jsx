@@ -50,7 +50,8 @@ export function NewBlogModal({ isOpen, onClose }) {
 
   const handleImageChange = (e) => {
     if (e.target.files[0].size > 5 * 1000 * 1024) {
-      alert("File size should be less than 5MB");
+      setAlertMessage("File size should be less than 5MB");
+      setAlertType("warning");
       e.target.value = null;
       setImage(null);
       setImagePreview(null);
@@ -68,7 +69,10 @@ export function NewBlogModal({ isOpen, onClose }) {
       },
       error(err) {
         console.error("Compression error:", err.message);
-        alert("We ran into a trouble. Please try again later.");
+        setAlertMessage("We ran into a trouble. Please try again later.");
+        setAlertType("error");
+        setImage(null);
+        setImagePreview(null);
       },
     });
     return;
@@ -118,15 +122,11 @@ export function NewBlogModal({ isOpen, onClose }) {
         JSON.parse(localStorage.getItem("userData")).user_id
       );
       const createBlogAPI = import.meta.env.VITE_CREATE_BLOG_GO_API;
-      let res = await axios.post(
-        createBlogAPI,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      let res = await axios.post(createBlogAPI, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       if (res.status === 200) {
         onClose();
         setTimeout(() => {
@@ -206,14 +206,14 @@ export function NewBlogModal({ isOpen, onClose }) {
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Content
           </label>
-          <div className="border rounded-lg focus-within:ring-2 focus-within:ring-thought-100">
+          <div className="border rounded-lg focus-within:ring-2 focus-within:ring-thought-100 pb-10 overflow-hidden">
             <ReactQuill
               theme="snow"
               value={content}
               onChange={setContent}
               modules={modules}
               formats={formats}
-              className="h-64 sm:h-72 md:h-80 lg:h-96"
+              className="rounded-b-lg h-64 sm:h-72 md:h-80 lg:h-96  [&_.ql-toolbar]:rounded-t-lg [&_.ql-toolbar]:sticky [&_.ql-toolbar]:pb-2 [&_.ql-toolbar]:z-0 [&_.ql-toolbar]:bg-thought-50"
               placeholder="Write your content here..."
             />
           </div>

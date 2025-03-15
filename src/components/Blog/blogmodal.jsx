@@ -6,12 +6,16 @@ import {
   FaCheckCircle,
   FaHeart,
   FaFacebook,
-  FaTwitter,
   FaLinkedin,
   FaInstagram,
   FaGithub,
   FaRobot,
 } from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
+import { MdDelete } from "react-icons/md";
+import axios from "axios";
+import { Alert } from "../Settings/alert";
+import Warning from "../../utils/warningModal";
 
 export function BlogModal({ blog, isOpen, onClose, onAddComment }) {
   const modalRef = useRef(null);
@@ -21,12 +25,21 @@ export function BlogModal({ blog, isOpen, onClose, onAddComment }) {
     }
   }, [isOpen]);
 
+  const userData = JSON.parse(localStorage.getItem("userData"));
+  const userId = userData ? userData.user_id : null;
+
   const [newComment, setNewComment] = useState("");
   const [activeTab, setActiveTab] = useState("content");
   const [readTime, setReadTime] = useState(0);
   const [summary, setSummary] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertType, setAlertType] = useState("");
+  const [isWarning, setWarning] = useState(false);
+  const [warningMessage, setWarningMessage] = useState(
+    "Are you sure you want to delete this blog? There's no going back."
+  );
 
   useEffect(() => {
     const wordCount = blog.blog_data.content.split(/\s+/).length;
@@ -70,11 +83,34 @@ export function BlogModal({ blog, isOpen, onClose, onAddComment }) {
       const data = await response.json();
       setSummary(data.summary);
       setActiveTab("summary");
-    // eslint-disable-next-line no-unused-vars
+      // eslint-disable-next-line no-unused-vars
     } catch (err) {
       setError("Failed to generate summary. Please try again later.");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleDeleteBlog = () => {
+    setWarning(true);
+    setWarningMessage("Are you sure you want to delete this blog? This action cannot be undone.");
+  };
+
+  const handleDeleteConfirmation = async () => {
+    setWarning(false);
+    try {
+      const deleteBlogAPI = `${import.meta.env.VITE_DELETE_BLOG_GO_API}${blog.blog_data.id}&userId=${userId}`;
+      const deleteResponse = await axios.delete(deleteBlogAPI);
+      
+      if (deleteResponse.status === 200) {
+        window.dispatchEvent(new Event("blogDeleted"));
+        setAlertMessage("Blog deleted successfully");
+        setAlertType("success");
+        onClose();
+      }
+    } catch (error) {
+      setAlertMessage(error.response?.data?.message || "Deletion failed");
+      setAlertType("error");
     }
   };
 
@@ -86,7 +122,18 @@ export function BlogModal({ blog, isOpen, onClose, onAddComment }) {
   ];
 
   return (
-    <div className="fixed z-50 flex justify-center p-10">
+    <div className="fixed z-40 flex justify-center p-10">
+      {alertMessage && (
+        <Alert
+          type={alertType}
+          message={alertMessage}
+          onClose={() => setAlertMessage("")}
+          className="z-50"
+        />
+      )}
+      {isWarning && (
+        <Warning message={warningMessage} onClose={() => setWarning(false)}     onConfirm={handleDeleteConfirmation} />
+      )}
       <div
         className="fixed inset-0 cursor-pointer bg-gradient-to-b from-transparent via-gray-900/60 to-transparent backdrop-blur-sm"
         onClick={onClose}
@@ -122,6 +169,11 @@ export function BlogModal({ blog, isOpen, onClose, onAddComment }) {
                   <FaClock className="text-gray-400" />
                   <span>{readTime} min read</span>
                 </div>
+                <span className="opacity-30">•</span>
+                <MdDelete
+                  className="text-thought-100 hover:text-hub-100 cursor-pointer size-6"
+                  onClick={handleDeleteBlog}
+                />
               </div>
             </div>
             <button
@@ -168,7 +220,7 @@ export function BlogModal({ blog, isOpen, onClose, onAddComment }) {
               {/* Hover Message for "comments" and "about" tabs */}
               {(tab === "comments" || tab === "about") && (
                 <div className="absolute hidden group-hover:block z-50 bg-thought-75 text-hub-100 text-sm p-2 rounded mt-2 top-full left-1/2 transform -translate-x-1/2 whitespace-nowrap">
-                  {`Coming soon`}
+                  Coming soon
                 </div>
               )}
             </div>
@@ -215,7 +267,7 @@ export function BlogModal({ blog, isOpen, onClose, onAddComment }) {
                     href="#"
                     className="hover:text-blue-500 transition-all duration-200"
                   >
-                    <FaTwitter size={28} />
+                    <FaXTwitter size={28} />
                   </a>
                   <a
                     href="#"
