@@ -3,7 +3,7 @@ import axios from "axios";
 import GoogleLoginComponent from "../GoogleLogin/google";
 import { FaSearch, FaHeart, FaComment } from "react-icons/fa";
 import Footer from "../Footer/footer";
-import LoadingSpinner from "./LoadingSpinner";
+import LoadingSpinner from "./loadingSpinner";
 import { limitOffsetForLoginPage } from "../../utils/constants";
 
 function Login() {

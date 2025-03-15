@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { GrClose } from "react-icons/gr";
 import PropTypes from "prop-types";
 import Compressor from "compressorjs";
@@ -85,18 +85,18 @@ export function NewBlogModal({ isOpen, onClose }) {
     if (title.trim(" ").length < 10) {
       newErrors.title = "Title must be at least 10 characters long.";
     }
-    
+
     const contentText = content.replace(/<[^>]*>/g, "").trim();
     const wordCount = countWords(content);
-    
-    if (contentText.length < 100) {
-      newErrors.content = "Content must be at least 100 characters long.";
-    } else if (wordCount < 10) {
-      newErrors.content = "Content must be at least 10 words long.";
-    } else if (wordCount > 1000) {
-      newErrors.content = "Content must be at most 1000 words long.";
+
+    if (contentText.length < 300) {
+      newErrors.content = "Content must be at least 300 characters long.";
+    } else if (wordCount < 100) {
+      newErrors.content = "Content must be at least 100 words long.";
+    } else if (wordCount > 3000) {
+      newErrors.content = "Content must be at most 3000 words long.";
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -117,8 +117,9 @@ export function NewBlogModal({ isOpen, onClose }) {
         "user_id",
         JSON.parse(localStorage.getItem("userData")).user_id
       );
+      const createBlogAPI = import.meta.env.VITE_CREATE_BLOG_GO_API;
       let res = await axios.post(
-        "http://localhost:8080/api/v1/create_blog",
+        createBlogAPI,
         formData,
         {
           headers: {

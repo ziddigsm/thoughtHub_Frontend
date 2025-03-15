@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import { GrClose, GrSearch, GrUserManager } from "react-icons/gr";
 import { GiHamburgerMenu } from "react-icons/gi";
 // import { FaHeart, FaComment } from "react-icons/fa";
-import "./Home.css";
 import { useLogout } from "../../contexts/useLogout";
 import { NewBlogModal } from "../Blog/newblog";
 import Footer from "../Footer/footer";
@@ -206,7 +205,7 @@ function Home() {
           <span className="text-thought-100 ">thought</span>
           <span className="text-hub-100 capitalize">Hub</span>
         </a>
-        
+
         {/* Navigation Items */}
         <div className="hidden max-lg:text-sm max-md:hidden md:flex items-center justify-between space-x-10">
           {navBarItems.map((item) => (

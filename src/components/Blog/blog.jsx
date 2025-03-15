@@ -20,12 +20,12 @@ export function FetchBlogs({ isMyBlogs, searchQuery, isSearching }) {
         try {
             let response;
             if (query) {
-                // Use search API when there's a query
+
                 response = await axios.get(
                   `${import.meta.env.VITE_SEARCH_BLOGS_API}?q=${encodeURIComponent(query)}&limit=${limit}&offset=${offset}`
                 );
             } else {
-                // Use original API for regular blog fetching
+
                 const userId = isMyBlogs ? JSON.parse(localStorage.getItem('userData'))?.user_id : 0;
                 response = await axios.get(
                     `${import.meta.env.VITE_GET_BLOG_DATA_GO_API + parseInt(userId)}&limit=${limit}&offset=${offset}`
@@ -42,7 +42,7 @@ export function FetchBlogs({ isMyBlogs, searchQuery, isSearching }) {
         try {
             setLoading(true);
             const blogData = await getBlogData(pageNumber, query);
-            setBlogs(blogData.blogs || []); // Handle potential different response structure
+            setBlogs(blogData.blogs || []); 
             setPageCount(Math.ceil((blogData.totalCount || blogData.total || 0) / limit));
         } catch (err) {
             console.log(err);

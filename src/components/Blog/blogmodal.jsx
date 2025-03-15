@@ -50,7 +50,11 @@ export function BlogModal({ blog, isOpen, onClose, onAddComment }) {
     setError(null);
 
     try {
-      const response = await fetch("http://127.0.0.1:5000/summarize", {
+      const summarizeUrl = import.meta.env.VITE_SUMMARIZE_API;
+      if (!summarizeUrl) {
+        throw new Error("Summarize API URL is not defined.");
+      }
+      const response = await fetch(summarizeUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -66,8 +70,8 @@ export function BlogModal({ blog, isOpen, onClose, onAddComment }) {
       const data = await response.json();
       setSummary(data.summary);
       setActiveTab("summary");
+    // eslint-disable-next-line no-unused-vars
     } catch (err) {
-      console.error("Summarization error:", err);
       setError("Failed to generate summary. Please try again later.");
     } finally {
       setIsLoading(false);

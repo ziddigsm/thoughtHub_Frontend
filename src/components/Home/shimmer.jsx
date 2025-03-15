@@ -3,7 +3,6 @@ import PropTypes from "prop-types";
 import { useState } from "react";
 import { BlogModal } from "../Blog/blogmodal";  
 
-// Function to strip HTML tags
 const stripHtml = (html) => {
   const tmp = document.createElement("DIV");
   tmp.innerHTML = html;
