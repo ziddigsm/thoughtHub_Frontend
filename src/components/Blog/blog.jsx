@@ -22,8 +22,8 @@ export function FetchBlogs({ isMyBlogs, searchQuery, isSearching }) {
             if (query) {
                 // Use search API when there's a query
                 response = await axios.get(
-                  `http://localhost:8080/api/v1/search_blogs?q=${encodeURIComponent(query)}&limit=${limit}&offset=${offset}`
-                  );
+                  `${import.meta.env.VITE_SEARCH_BLOGS_API}?q=${encodeURIComponent(query)}&limit=${limit}&offset=${offset}`
+                );
             } else {
                 // Use original API for regular blog fetching
                 const userId = isMyBlogs ? JSON.parse(localStorage.getItem('userData'))?.user_id : 0;
