@@ -1,4 +1,4 @@
-import React from "react";
+import PropTypes from 'prop-types';
 
 function Footer({ isModalOpen }) {
   return (
@@ -23,5 +23,8 @@ function Footer({ isModalOpen }) {
     </footer>
   );
 }
+Footer.propTypes = {
+  isModalOpen: PropTypes.bool.isRequired,
+};
 
 export default Footer;

@@ -4,7 +4,8 @@ import { GrClose } from "react-icons/gr";
 import PropTypes from "prop-types";
 import Compressor from "compressorjs";
 import { Alert } from "../Settings/alert";
-
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 
 export function NewBlogModal({ isOpen, onClose }) {
   const [title, setTitle] = useState("");
@@ -15,45 +16,87 @@ export function NewBlogModal({ isOpen, onClose }) {
   const [alertMessage, setAlertMessage] = useState("");
   const [alertType, setAlertType] = useState("");
 
+  const modules = {
+    toolbar: [
+      [{ header: [1, 2, 3, 4, 5, 6, false] }],
+      ["bold", "italic", "underline", "strike"],
+      [{ list: "ordered" }, { list: "bullet" }],
+      [{ indent: "-1" }, { indent: "+1" }],
+      [{ align: [] }],
+      ["link"],
+      ["clean"],
+      [{ color: [] }, { background: [] }],
+      ["blockquote", "code-block"],
+    ],
+  };
+
+  const formats = [
+    "header",
+    "bold",
+    "italic",
+    "underline",
+    "strike",
+    "list",
+    "bullet",
+    "indent",
+    "align",
+    "link",
+    "image",
+    "color",
+    "background",
+    "blockquote",
+    "code-block",
+  ];
+
   const handleImageChange = (e) => {
-    if(e.target.files[0].size > 5 * 1000 * 1024) {
-        alert("File size should be less than 5MB");
-       e.target.value = null;
-        setImage(null);
-        setImagePreview(null);
-        return;
+    if (e.target.files[0].size > 5 * 1000 * 1024) {
+      alert("File size should be less than 5MB");
+      e.target.value = null;
+      setImage(null);
+      setImagePreview(null);
+      return;
     }
     compressImage(e.target.files[0]);
   };
 
   const compressImage = (file) => {
     new Compressor(file, {
-        quality: 0.6,
-        success: (compressedFile) => {
-          setImage(compressedFile);
-          setImagePreview(URL.createObjectURL(compressedFile));
-        },
-        error(err) {
-          console.error("Compression error:", err.message);
-          alert("We ran into a trouble. Please try again later.");
-        },
-      });
-    return
-  }
+      quality: 0.6,
+      success: (compressedFile) => {
+        setImage(compressedFile);
+        setImagePreview(URL.createObjectURL(compressedFile));
+      },
+      error(err) {
+        console.error("Compression error:", err.message);
+        alert("We ran into a trouble. Please try again later.");
+      },
+    });
+    return;
+  };
+
+  const countWords = (html) => {
+    // Remove HTML tags and count words
+    const text = html.replace(/<[^>]*>/g, " ");
+    return text.split(/\s+/).filter(Boolean).length;
+  };
+
   const validateFields = () => {
     const newErrors = {};
-    if (title.trim(' ').length < 10) {
+    if (title.trim(" ").length < 10) {
       newErrors.title = "Title must be at least 10 characters long.";
     }
-    if (content.trim(' ').length < 100 ) {
-      newErrors.content = "Content must be at least 100 characters long.";
+
+    const contentText = content.replace(/<[^>]*>/g, "").trim();
+    const wordCount = countWords(content);
+
+    if (contentText.length < 300) {
+      newErrors.content = "Content must be at least 300 characters long.";
+    } else if (wordCount < 100) {
+      newErrors.content = "Content must be at least 100 words long.";
+    } else if (wordCount > 3000) {
+      newErrors.content = "Content must be at most 3000 words long.";
     }
-    else if (content.split(' ').length < 10) {
-        newErrors.content = "Content must be at least 10 words long.";
-    }
-    else if (content.split(' ').length > 1000) {
-        newErrors.content = "Content must be at most 1000 words long.";
-    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -74,8 +117,9 @@ export function NewBlogModal({ isOpen, onClose }) {
         "user_id",
         JSON.parse(localStorage.getItem("userData")).user_id
       );
+      const createBlogAPI = import.meta.env.VITE_CREATE_BLOG_GO_API;
       let res = await axios.post(
-        "http://localhost:8080/api/v1/create_blog",
+        createBlogAPI,
         formData,
         {
           headers: {
@@ -100,15 +144,15 @@ export function NewBlogModal({ isOpen, onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-md p-4 sm:p-6 md:p-8">
-            {alertMessage && (
-            <Alert
-              type={alertType}
-              message={alertMessage}
-              onClose={() => setAlertMessage("")}
-              className="z-50"
-            />
-          )}
-      <div className="bg-white p-4 sm:p-6 md:p-8 rounded-lg shadow-lg w-full max-w-md sm:max-w-lg lg:max-w-xl relative max-h-[80vh] overflow-y-auto animate-popIn">
+      {alertMessage && (
+        <Alert
+          type={alertType}
+          message={alertMessage}
+          onClose={() => setAlertMessage("")}
+          className="z-50"
+        />
+      )}
+      <div className="bg-white p-4 sm:p-6 md:p-8 rounded-lg shadow-lg w-full max-w-2xl lg:max-w-4xl xl:max-w-5xl relative max-h-[90vh] overflow-y-auto animate-popIn">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
@@ -119,11 +163,11 @@ export function NewBlogModal({ isOpen, onClose }) {
           Create a New Blog
         </h2>
 
-        <div className="mb-4">
+        <div className="mb-6">
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Upload Image
+            Upload Cover Image
           </label>
-          <div className="flex items-center justify-center w-full h-32 sm:h-40 border-2 border-dashed rounded-lg border-gray-300 p-4 bg-gray-50 relative">
+          <div className="flex items-center justify-center w-full h-40 sm:h-48 md:h-56 border-2 border-dashed rounded-lg border-gray-300 p-4 bg-gray-50 relative hover:bg-gray-100 transition-colors duration-200">
             {imagePreview ? (
               <img
                 src={imagePreview}
@@ -142,40 +186,56 @@ export function NewBlogModal({ isOpen, onClose }) {
           </div>
         </div>
 
-        <div className="mb-4">
+        <div className="mb-6">
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Title
           </label>
           <input
             type="text"
-            className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-thought-100"
+            className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-thought-100 text-lg"
             placeholder="Enter blog title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
-          {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
+          {errors.title && (
+            <p className="text-red-500 text-sm mt-1">{errors.title}</p>
+          )}
         </div>
 
-        <div className="mb-4">
+        <div className="mb-6">
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Content
           </label>
-          <textarea
-            className="w-full p-2 h-24 sm:h-32 border rounded-lg focus:outline-none focus:ring-2 focus:ring-thought-100"
-            placeholder="Write your content here..."
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            required
-          ></textarea>
-           {errors.content && <p className="text-red-500 text-sm mt-1">{errors.content}</p>}
+          <div className="border rounded-lg focus-within:ring-2 focus-within:ring-thought-100">
+            <ReactQuill
+              theme="snow"
+              value={content}
+              onChange={setContent}
+              modules={modules}
+              formats={formats}
+              className="h-64 sm:h-72 md:h-80 lg:h-96"
+              placeholder="Write your content here..."
+            />
+          </div>
+          {errors.content && (
+            <p className="text-red-500 text-sm mt-1">{errors.content}</p>
+          )}
         </div>
 
-        <button
-          onClick={handlePublishBlog}
-          className="w-full bg-thought-100 text-white p-2 rounded-lg hover:bg-hub-100 transition-all duration-200"
-        >
-          Publish
-        </button>
+        <div className="flex justify-end space-x-4">
+          <button
+            onClick={onClose}
+            className="bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300 transition-all duration-200"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handlePublishBlog}
+            className="bg-thought-100 text-white px-6 py-3 rounded-lg hover:bg-hub-100 transition-all duration-200 flex-grow sm:flex-grow-0"
+          >
+            Publish
+          </button>
+        </div>
       </div>
     </div>
   );

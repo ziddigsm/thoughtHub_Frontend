@@ -1,13 +1,88 @@
 import { useState, useRef, useEffect } from "react";
+import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
 import { GrClose, GrSearch, GrUserManager } from "react-icons/gr";
 import { GiHamburgerMenu } from "react-icons/gi";
-import "./Home.css";
+// import { FaHeart, FaComment } from "react-icons/fa";
 import { useLogout } from "../../contexts/useLogout";
 import { NewBlogModal } from "../Blog/newblog";
-import Footer from "../Footer/Footer";
-import  { FetchBlogs }  from '../Blog/blog';
+import Footer from "../Footer/footer";
+import { FetchBlogs } from "../Blog/blog";
 import { Alert } from "../Settings/alert";
+// import { BlogModal } from "./BlogModal";
+// import axios from "axios";
+
+function SearchBar({ searchQuery, setSearchQuery, setIsSearching }) {
+  const [isSmallScreen, setIsSmallScreen] = useState(false);
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const searchTimeoutRef = useRef(null);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsSmallScreen(window.innerWidth < 769);
+    };
+
+    window.addEventListener("resize", handleResize);
+    handleResize();
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const handleSearch = (value) => {
+    setSearchQuery(value);
+
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    setIsSearching(true);
+
+    searchTimeoutRef.current = setTimeout(() => {
+      setIsSearching(false);
+    }, 500);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setIsSearching(false);
+  };
+
+  return (
+    <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 md:px-8">
+      <form
+        onSubmit={handleSubmit}
+        className={`transform transition-all duration-300 ${
+          isSearchFocused ? "scale-105" : "scale-100"
+        }`}
+      >
+        <div className="relative flex items-center p-2 rounded-full bg-white border-2 border-gray-200 focus-within:border-thought-100 focus-within:ring-2 focus-within:ring-thought-100/5 transition-all duration-300 shadow-lg">
+          <GrSearch className="ml-3 text-gray-400 w-5 h-5" />
+          <input
+            className="flex-grow px-4 py-2 bg-transparent focus:outline-none placeholder-gray-500 text-lg"
+            placeholder="Search for blogs..."
+            value={searchQuery}
+            onChange={(e) => handleSearch(e.target.value)}
+            onFocus={() => setIsSearchFocused(true)}
+            onBlur={() => setIsSearchFocused(false)}
+          />
+          <button
+            type="submit"
+            className={`p-2 px-4 py-2 bg-thought-100 rounded-full text-white hover:bg-hub-100 transition-all duration-300 flex items-center justify-center ${
+              isSmallScreen ? "w-10 h-10" : ""
+            }`}
+          >
+            {!isSmallScreen ? "Search" : <GrSearch className="text-white" />}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
+SearchBar.propTypes = {
+  searchQuery: PropTypes.string.isRequired,
+  setSearchQuery: PropTypes.func.isRequired,
+  setIsSearching: PropTypes.func.isRequired,
+};
 
 function Home() {
   const [dropDown, setDropDown] = useState(false);
@@ -18,6 +93,9 @@ function Home() {
   const [alertMessage, setAlertMessage] = useState("");
   const [alertType, setAlertType] = useState("");
   const [isMyBlogs, setIsMyBlogs] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+  //const [selectedBlog, setSelectedBlog] = useState(null);
   const menuRef = useRef(null);
   const profileRef = useRef(null);
   const moreRef = useRef(null);
@@ -59,6 +137,11 @@ function Home() {
     setModalOpen(!modalOpen);
   };
 
+  // const handleClickOnBlogCard = (blog) => {
+  //   //setSelectedBlog(blog);
+  //   setModalOpen(true);
+  // };
+
   useEffect(() => {
     const handleResize = () => {
       setIsSmallScreen(window.innerWidth < 900);
@@ -79,8 +162,7 @@ function Home() {
   const handleClickOnMyBlogs = () => {
     setIsMyBlogs(true);
     setIsProfileOpen(false);
-    console.log(isMyBlogs);
-  }
+  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -104,26 +186,31 @@ function Home() {
   useEffect(() => {
     const handleBlogSuccess = () => {
       setAlertMessage("Blog creation successful.");
-      setAlertType("success"); 
+      setAlertType("success");
     };
     window.addEventListener("newBlogSuccess", handleBlogSuccess);
-    return () => window.removeEventListener("newBlogSuccess", handleBlogSuccess);
-  },[]);
+    return () =>
+      window.removeEventListener("newBlogSuccess", handleBlogSuccess);
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="header top-0 z-50 sticky flex flex-row px-6 items-center justify-between bg-thought-50/70 rounded-full backdrop-blur-lg mt-4 mx-4 shadow-lg  hover:opacity-100 transition-all duration-400">
+      {/* Header */}
+      <header className="header top-0 z-50 sticky flex flex-row px-6 items-center justify-between bg-thought-50/70 rounded-full backdrop-blur-lg mt-4 mx-4 shadow-lg hover:opacity-100 transition-all duration-400">
         <a
           href="/home"
           className="text-2xl font-bold p-3"
           style={{ textShadow: "4px 4px 10px rgba(0, 0, 0, 0.2)" }}
         >
-          <span className="text-thought-100 capitalize">thought</span>
+          <span className="text-thought-100 ">thought</span>
           <span className="text-hub-100 capitalize">Hub</span>
         </a>
+
+        {/* Navigation Items */}
         <div className="hidden max-lg:text-sm max-md:hidden md:flex items-center justify-between space-x-10">
           {navBarItems.map((item) => (
             <button
-              className="cursor-pointer hover:text-thought-100"
+              className="cursor-pointer hover:text-thought-100 transition-colors duration-200"
               key={item.name}
             >
               {item.name}
@@ -132,7 +219,7 @@ function Home() {
 
           <div className="relative">
             <button
-              className="cursor-pointer hover:text-thought-100"
+              className="cursor-pointer hover:text-thought-100 transition-colors duration-200"
               onClick={handleClickOnMore}
             >
               More
@@ -145,7 +232,7 @@ function Home() {
                 {dropDownItems.map((item) => (
                   <button
                     key={item.name}
-                    className="hover:text-thought-100 px-4 py-2 text-left whitespace-nowrap"
+                    className="hover:text-thought-100 px-4 py-2 text-left whitespace-nowrap transition-colors duration-200"
                   >
                     {item.name}
                   </button>
@@ -156,11 +243,14 @@ function Home() {
         </div>
 
         <div className="flex items-center space-x-4">
-          <button className="max-md:hidden md:block rounded-xl bg-thought-100 p-2 px-3 justify-center text-white hover:bg-hub-100 transition-all duration-300 ease-linear" onClick={handleNewBlogModal}>
+          <button
+            className="max-md:hidden md:block rounded-xl bg-thought-100 p-2 px-3 justify-center text-white hover:bg-hub-100 transition-all duration-300 ease-linear"
+            onClick={handleNewBlogModal}
+          >
             {isSmallScreen ? "+" : "+ New Blog"}
           </button>
           <GrUserManager
-            className="w-8 h-8 rounded-full cursor-pointer"
+            className="w-8 h-8 rounded-full cursor-pointer hover:opacity-80 transition-opacity duration-200"
             onClick={handleClickOnProfile}
           />
 
@@ -176,6 +266,7 @@ function Home() {
           </button>
         </div>
       </header>
+
       {alertMessage && (
         <Alert
           type={alertType}
@@ -183,6 +274,7 @@ function Home() {
           onClose={() => setAlertMessage("")}
         />
       )}
+
       {openMenu && (
         <div
           ref={menuRef}
@@ -192,7 +284,7 @@ function Home() {
             {navBarItems.map((item) => (
               <button
                 key={item.name}
-                className="text-left hover:text-thought-100 py-2 px-4"
+                className="text-left hover:text-thought-100 py-2 px-4 transition-colors duration-200"
               >
                 {item.name}
               </button>
@@ -201,93 +293,90 @@ function Home() {
             {dropDownItems.map((item) => (
               <button
                 key={item.name}
-                className="text-left hover:text-thought-100 py-2 px-4"
+                className="text-left hover:text-thought-100 py-2 px-4 transition-colors duration-200"
               >
                 {item.name}
               </button>
             ))}
             <div className="h-px bg-gray-200" />
-            <button className="w-full rounded-xl bg-thought-100 p-2 px-3 text-white hover:bg-hub-100 transition-all duration-300 ease-linear" onClick={handleNewBlogModal}>
+            <button
+              className="w-full rounded-xl bg-thought-100 p-2 px-3 text-white hover:bg-hub-100 transition-all duration-300 ease-linear"
+              onClick={handleNewBlogModal}
+            >
               + New Blog
             </button>
           </div>
         </div>
       )}
+
       {isProfileOpen && (
         <div
           ref={profileRef}
-          className="flex flex-col fixed right-5 p-2 space-y-2 max-md:right-14 items-start z-20 bg-thought-50 shadow-lg rounded-lg top-20 "
+          className="flex flex-col fixed right-5 p-2 space-y-2 max-md:right-14 items-start z-20 bg-thought-50 shadow-lg rounded-lg top-20"
         >
           <a
-            className="hover:text-thought-100 cursor-pointer block w-full p-2"
+            className="hover:text-thought-100 cursor-pointer block w-full p-2 transition-colors duration-200"
             onClick={handleClickOnMyBlogs}
           >
             My Blogs
           </a>
           <a
-            className="hover:text-thought-100 cursor-pointer block w-full p-2"
+            className="hover:text-thought-100 cursor-pointer block w-full p-2 transition-colors duration-200"
             onClick={handleClickOnSettings}
           >
             Settings
           </a>
           <div className="h-px bg-gray-300 opacity-50 w-full" />
           <a
-            className="text-red-800 cursor-pointer hover:text-red-900 block w-full p-2"
+            className="text-red-800 cursor-pointer hover:text-red-900 block w-full p-2 transition-colors duration-200"
             onClick={handleLogout}
           >
             Logout
           </a>
         </div>
       )}
-      <div className="relative flex-grow">
-      <div className="absolute inset-0 bg-hub-50">
-        <div className=" w-[40%] h-[60%] rounded-full bg-thought-100 blur-[80px] opacity-30" />
-        <div className="absolute top-[30%] right-[-5%] w-[45%] h-[40%] rounded-full bg-hub-100 blur-[100px] opacity-40" />
-        <div className="absolute bottom-[-10%] left-[20%] w-[50%] h-[50%] rounded-full bg-thought-200 blur-[90px] opacity-20" />
-      </div>
-      <div className="absolute inset-0 bg-gradient-to-t from-transparent via-transparent to-[#ffffff] opacity-100 z-0" />
-      <div className="absolute inset-0 bg-thought-50/30" />
-      <div className="relative flex items-center justify-center px-4 py-8 sm:py-12 md:py-16 lg:py-20">
-        <SearchBar />
-      </div>
-      <div className="relative z-10">
-        {isMyBlogs && <FetchBlogs isMyBlogs={isMyBlogs} />}
-        {!isMyBlogs && <FetchBlogs isMyBlogs={false} />}
-      </div>
-      {modalOpen && <NewBlogModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />}
-      <div className="absolute w-full">
-        <Footer isModalOpen={modalOpen} />
-      </div>
-    </div>
-    </div>
-  );
-}
 
-function SearchBar() {
-  const [isSmallScreen, setIsSmallScreen] = useState(false);
+      <div className="flex-grow flex flex-col">
+        <div className="fixed inset-0 overflow-hidden z-0">
+          <div className="absolute w-[40vw] h-[60vh] -top-[10vh] -left-[10vw] rounded-full bg-thought-100 blur-[80px] opacity-30" />
+          <div className="absolute w-[45vw] h-[40vh] top-[30%] -right-[5vw] rounded-full bg-hub-100 blur-[100px] opacity-40" />
+          <div className="absolute w-[50vw] h-[50vh] -bottom-[10vh] -left-[5vw] rounded-full bg-thought-200 blur-[90px] opacity-20" />
+        </div>
 
-  useEffect(() => {
-    const handleResize = () => {
-      setIsSmallScreen(window.innerWidth < 769);
-    };
+        <div className="relative flex items-center justify-center px-4 py-8 sm:py-12 md:py-16 lg:py-20">
+          <SearchBar
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            setIsSearching={setIsSearching}
+          />
+        </div>
 
-    window.addEventListener("resize", handleResize);
-    handleResize();
+        <div className="relative z-10">
+          {isMyBlogs ? (
+            <FetchBlogs
+              isMyBlogs={isMyBlogs}
+              searchQuery={searchQuery}
+              isSearching={isSearching}
+            />
+          ) : (
+            <FetchBlogs
+              isMyBlogs={false}
+              searchQuery={searchQuery}
+              isSearching={isSearching}
+            />
+          )}
+        </div>
 
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+        {modalOpen && (
+          <NewBlogModal
+            isOpen={modalOpen}
+            onClose={() => setModalOpen(false)}
+          />
+        )}
 
-  return (
-    <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 md:px-8 ">
-      <div className="search-bar flex flex-row items-center p-2 rounded-full bg-thought-50 backdrop-blur-sm shadow-lg ">
-        <GrSearch className="ml-3 text-thought-200" />
-        <input
-          className="search-input flex-grow px-4 py-2 rounded-full bg-transparent focus:outline-none placeholder-gray-500 "
-          placeholder="Search for blogs"
-        />
-        <button className="p-1 px-4 py-2 max-md:p-0 max-md:w-10 max-md:h-10 bg-thought-100 rounded-full text-white hover:bg-hub-100 transition-colors duration-200 flex items-center justify-center">
-          {!isSmallScreen ? "Search" : <GrSearch className="text-white" />}
-        </button>
+        <div className="w-full">
+          <Footer isModalOpen={modalOpen} />
+        </div>
       </div>
     </div>
   );

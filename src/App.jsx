@@ -2,7 +2,7 @@ import "./App.css";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { Settings } from "./components/Settings/settings";
 import Login from "./components/Login/login";
-import Home from "./components/Home/home";
+import Home from "./components/Home/Home";
 
 function App() {
   let userData = localStorage.getItem("userData");

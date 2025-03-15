@@ -10,7 +10,7 @@ import {
 import { FiArrowLeft } from "react-icons/fi";
 import { useLogout } from "../../contexts/useLogout";
 import axios from "axios";
-import Footer from "../Footer/Footer";
+import Footer from "../Footer/footer";
 
 export function Settings() {
   const userData = JSON.parse(localStorage.getItem("userData"));
