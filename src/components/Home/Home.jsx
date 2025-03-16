@@ -1,9 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
-import { GrClose, GrSearch, GrUserManager } from "react-icons/gr";
-import { GiHamburgerMenu } from "react-icons/gi";
-// import { FaHeart, FaComment } from "react-icons/fa";
+import { GrSearch } from "react-icons/gr";
+import { FaUserCircle } from "react-icons/fa";
 import { useLogout } from "../../contexts/useLogout";
 import { NewBlogModal } from "../Blog/newblog";
 import Footer from "../Footer/footer";
@@ -13,20 +12,11 @@ import { Alert } from "../Settings/alert";
 // import axios from "axios";
 
 function SearchBar({ searchQuery, setSearchQuery, setIsSearching }) {
-  const [isSmallScreen, setIsSmallScreen] = useState(false);
+  //add isSmallScreen state here for navbar
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const searchTimeoutRef = useRef(null);
 
-  useEffect(() => {
-    const handleResize = () => {
-      setIsSmallScreen(window.innerWidth < 769);
-    };
-
-    window.addEventListener("resize", handleResize);
-    handleResize();
-
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  //add useEffect to handle resize here
 
   const handleSearch = (value) => {
     setSearchQuery(value);
@@ -65,14 +55,6 @@ function SearchBar({ searchQuery, setSearchQuery, setIsSearching }) {
             onFocus={() => setIsSearchFocused(true)}
             onBlur={() => setIsSearchFocused(false)}
           />
-          <button
-            type="submit"
-            className={`p-2 px-4 py-2 bg-thought-100 rounded-full text-white hover:bg-hub-100 transition-all duration-300 flex items-center justify-center ${
-              isSmallScreen ? "w-10 h-10" : ""
-            }`}
-          >
-            {!isSmallScreen ? "Search" : <GrSearch className="text-white" />}
-          </button>
         </div>
       </form>
     </div>
@@ -85,9 +67,7 @@ SearchBar.propTypes = {
 };
 
 function Home() {
-  const [dropDown, setDropDown] = useState(false);
-  const [openMenu, setOpenMenu] = useState(false);
-  const [isSmallScreen, setIsSmallScreen] = useState(false);
+// add states for categories section handling from notes
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
@@ -95,39 +75,13 @@ function Home() {
   const [isMyBlogs, setIsMyBlogs] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
-  //const [selectedBlog, setSelectedBlog] = useState(null);
-  const menuRef = useRef(null);
   const profileRef = useRef(null);
-  const moreRef = useRef(null);
   const navigate = useNavigate();
 
-  const navBarItems = [
-    { name: "Tech" },
-    { name: "Travel" },
-    { name: "Business" },
-    { name: "Science" },
-    { name: "Cooking" },
-  ];
-
-  const dropDownItems = [
-    { name: "Entertainment" },
-    { name: "Education" },
-    { name: "Politics" },
-    { name: "History" },
-    { name: "Health" },
-    { name: "Music" },
-    { name: "Art" },
-  ];
+  // add navbar categories items here
 
   const handleLogout = useLogout().handleLogout;
 
-  const handleClickOnMore = () => {
-    setDropDown(!dropDown);
-  };
-
-  const handleClickOnMenu = () => {
-    setOpenMenu(!openMenu);
-  };
 
   const handleClickOnProfile = () => {
     setIsProfileOpen(!isProfileOpen);
@@ -137,21 +91,7 @@ function Home() {
     setModalOpen(!modalOpen);
   };
 
-  // const handleClickOnBlogCard = (blog) => {
-  //   //setSelectedBlog(blog);
-  //   setModalOpen(true);
-  // };
-
-  useEffect(() => {
-    const handleResize = () => {
-      setIsSmallScreen(window.innerWidth < 900);
-    };
-
-    window.addEventListener("resize", handleResize);
-    handleResize();
-
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  // add handle and useEffect methods to handle resize and more clicks
 
   const handleClickOnSettings = (e) => {
     e.preventDefault();
@@ -166,12 +106,7 @@ function Home() {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setOpenMenu(false);
-      }
-      if (moreRef.current && !moreRef.current.contains(event.target)) {
-        setDropDown(false);
-      }
+      // add if conditions for opening menus and closing them/dropdowns
       if (profileRef.current && !profileRef.current.contains(event.target)) {
         setIsProfileOpen(false);
       }
@@ -196,74 +131,31 @@ function Home() {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header */}
-      <header className="header top-0 z-50 sticky flex flex-row px-6 items-center justify-between bg-thought-50/70 rounded-full backdrop-blur-lg mt-4 mx-4 shadow-lg hover:opacity-100 transition-all duration-400">
+      <header className="header top-0 z-50 sticky flex flex-row px-6 max-sm:px-3 items-center justify-between bg-thought-50/70 rounded-full backdrop-blur-lg mt-4 mx-4 shadow-lg hover:opacity-100 transition-all duration-400">
         <a
           href="/home"
-          className="text-2xl font-bold p-3"
+          className="text-2xl font-bold py-3 pr-3"
           style={{ textShadow: "4px 4px 10px rgba(0, 0, 0, 0.2)" }}
         >
-          <span className="text-thought-100 ">thought</span>
+          <span className="text-thought-100 ">Thought</span>
           <span className="text-hub-100 capitalize">Hub</span>
         </a>
 
         {/* Navigation Items */}
-        <div className="hidden max-lg:text-sm max-md:hidden md:flex items-center justify-between space-x-10">
-          {navBarItems.map((item) => (
-            <button
-              className="cursor-pointer hover:text-thought-100 transition-colors duration-200"
-              key={item.name}
-            >
-              {item.name}
-            </button>
-          ))}
 
-          <div className="relative">
-            <button
-              className="cursor-pointer hover:text-thought-100 transition-colors duration-200"
-              onClick={handleClickOnMore}
-            >
-              More
-            </button>
-            {dropDown && (
-              <div
-                ref={moreRef}
-                className="absolute top-12 right-0 bg-thought-50 p-2 text-left rounded-lg space-y-1 flex flex-col shadow-lg z-20"
-              >
-                {dropDownItems.map((item) => (
-                  <button
-                    key={item.name}
-                    className="hover:text-thought-100 px-4 py-2 text-left whitespace-nowrap transition-colors duration-200"
-                  >
-                    {item.name}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-3">
           <button
-            className="max-md:hidden md:block rounded-xl bg-thought-100 p-2 px-3 justify-center text-white hover:bg-hub-100 transition-all duration-300 ease-linear"
+            className=" max-xs:text-xs md:block rounded-xl bg-thought-100 p-2 px-3 justify-center text-white hover:bg-hub-100 text-nowrap transition-all duration-300 ease-linear"
             onClick={handleNewBlogModal}
           >
-            {isSmallScreen ? "+" : "+ New Blog"}
+            + New Blog
           </button>
-          <GrUserManager
-            className="w-8 h-8 rounded-full cursor-pointer hover:opacity-80 transition-opacity duration-200"
+          <FaUserCircle
+            className="w-10 h-10 bg-thought-100 text-white border-none rounded-full  cursor-pointer hover:opacity-80 transition-opacity duration-200"
             onClick={handleClickOnProfile}
           />
 
-          <button
-            className="block min-cus-md:hidden text-thought-100"
-            onClick={handleClickOnMenu}
-          >
-            {openMenu ? (
-              <GrClose size={24} className="text-thought-100" />
-            ) : (
-              <GiHamburgerMenu size={24} className="text-thought-100" />
-            )}
-          </button>
+      {/* Hamburger menu button comes here */}
         </div>
       </header>
 
@@ -272,42 +164,11 @@ function Home() {
           type={alertType}
           message={alertMessage}
           onClose={() => setAlertMessage("")}
+          className="z-50"
         />
       )}
 
-      {openMenu && (
-        <div
-          ref={menuRef}
-          className="min-cus-md:hidden w-full fixed top-20 bg-thought-50 p-4 z-50 shadow-lg rounded-3xl max-h-[75vh] overflow-y-auto"
-        >
-          <div className="flex flex-col space-y-4">
-            {navBarItems.map((item) => (
-              <button
-                key={item.name}
-                className="text-left hover:text-thought-100 py-2 px-4 transition-colors duration-200"
-              >
-                {item.name}
-              </button>
-            ))}
-            <div className="h-px bg-gray-200" />
-            {dropDownItems.map((item) => (
-              <button
-                key={item.name}
-                className="text-left hover:text-thought-100 py-2 px-4 transition-colors duration-200"
-              >
-                {item.name}
-              </button>
-            ))}
-            <div className="h-px bg-gray-200" />
-            <button
-              className="w-full rounded-xl bg-thought-100 p-2 px-3 text-white hover:bg-hub-100 transition-all duration-300 ease-linear"
-              onClick={handleNewBlogModal}
-            >
-              + New Blog
-            </button>
-          </div>
-        </div>
-      )}
+      {/*the dropdown menu code for mobile screens*/}
 
       {isProfileOpen && (
         <div

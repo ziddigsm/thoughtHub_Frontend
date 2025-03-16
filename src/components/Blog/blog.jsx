@@ -20,14 +20,17 @@ export function FetchBlogs({ isMyBlogs, searchQuery, isSearching }) {
 
   const getBlogData = async (pageNumber, query = "") => {
     const offset = (pageNumber - 1) * limit;
-
+    let userId = 0
     try {
+            if (isMyBlogs) {
+            userId = JSON.parse(localStorage.getItem("userData"))?.user_id;
+            }
       let response;
       if (query) {
         response = await axios.get(
           `${import.meta.env.VITE_SEARCH_BLOGS_API}?q=${encodeURIComponent(
             query
-          )}&limit=${limit}&offset=${offset}`
+          )}&limit=${limit}&offset=${offset}&user_id=${userId}`
         );
       } else {
         const userId = isMyBlogs
