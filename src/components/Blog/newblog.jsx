@@ -213,7 +213,7 @@ export function NewBlogModal({ isOpen, onClose }) {
               onChange={setContent}
               modules={modules}
               formats={formats}
-              className="rounded-b-lg h-64 sm:h-72 md:h-80 lg:h-96  [&_.ql-toolbar]:rounded-t-lg [&_.ql-toolbar]:sticky [&_.ql-toolbar]:pb-2 [&_.ql-toolbar]:z-0 [&_.ql-toolbar]:bg-thought-50"
+              className="rounded-b-lg h-64 sm:h-72 md:h-80 lg:h-96  [&_.ql-toolbar]:rounded-t-lg [&_.ql-toolbar]:sticky [&_.ql-toolbar]:pb-2 [&_.ql-toolbar]:z-10 [&_.ql-toolbar]:bg-thought-50"
               placeholder="Write your content here..."
             />
           </div>

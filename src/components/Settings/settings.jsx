@@ -364,7 +364,7 @@ function SocialsSection({ userDetails, handleEdit }) {
       placeholder: "Twitter URL",
       value: userDetails.twitter,
       onChange: (e) => handleEdit("twitter", e.target.value),
-      props: "text-blue-400",
+      props: "text-black",
     },
   ];
 

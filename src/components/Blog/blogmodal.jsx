@@ -268,7 +268,7 @@ export function BlogModal({ blog, isOpen, onClose, onAddComment }) {
                   </a>
                   <a
                     href="#"
-                    className="hover:text-blue-500 transition-all duration-200"
+                    className="hover:text-black transition-all duration-200"
                   >
                     <FaXTwitter size={28} />
                   </a>

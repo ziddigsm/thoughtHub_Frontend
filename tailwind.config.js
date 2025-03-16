@@ -6,6 +6,7 @@ export default {
     theme: {
       extend: {
         screens: {
+          'max-xs': { 'max': '475px' },
           'max-sm': { 'max': '640px' }, 
           'max-md': { 'max': '768px' }, 
           'max-lg': { 'max': '1024px' }, 
