@@ -36,7 +36,7 @@ export function BlogModal({ blog, isOpen, onClose, onAddComment }) {
   const [error, setError] = useState(null);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertType, setAlertType] = useState("");
-  const [isWarning, setWarning] = useState(false);
+  const [isWarning, setIsWarning] = useState(false);
   const [warningMessage, setWarningMessage] = useState(
     "Are you sure you want to delete this blog? There's no going back."
   );
@@ -92,12 +92,12 @@ export function BlogModal({ blog, isOpen, onClose, onAddComment }) {
   };
 
   const handleDeleteBlog = () => {
-    setWarning(true);
+    setIsWarning(true);
     setWarningMessage("Are you sure you want to delete this blog? This action cannot be undone.");
   };
 
   const handleDeleteConfirmation = async () => {
-    setWarning(false);
+    setIsWarning(false);
     try {
       const deleteBlogAPI = `${import.meta.env.VITE_DELETE_BLOG_GO_API}${blog.blog_data.id}&userId=${userId}`;
       const deleteResponse = await axios.delete(deleteBlogAPI);
@@ -132,7 +132,10 @@ export function BlogModal({ blog, isOpen, onClose, onAddComment }) {
         />
       )}
       {isWarning && (
-        <Warning message={warningMessage} onClose={() => setWarning(false)}     onConfirm={handleDeleteConfirmation} />
+         <Warning message={warningMessage} 
+         onClose={() => setIsWarning(false)}
+         onConfirm={handleDeleteConfirmation} 
+         />
       )}
       <div
         className="fixed inset-0 cursor-pointer bg-gradient-to-b from-transparent via-gray-900/60 to-transparent backdrop-blur-sm"
