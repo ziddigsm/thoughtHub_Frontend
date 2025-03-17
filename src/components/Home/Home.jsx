@@ -7,7 +7,6 @@ import { useLogout } from "../../contexts/useLogout";
 import { NewBlogModal } from "../Blog/newblog";
 import Footer from "../Footer/footer";
 import { FetchBlogs } from "../Blog/blog";
-import { Alert } from "../Settings/alert";
 import { useAlertContext } from "../../contexts/alertContext";
 
 function SearchBar({ searchQuery, setSearchQuery, setIsSearching }) {
