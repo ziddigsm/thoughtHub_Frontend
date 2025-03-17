@@ -4,10 +4,13 @@ import './google.css';
 import { FaGoogle } from 'react-icons/fa';
 import {useTimeOutContext} from '../../contexts/timeOutContext';
 import PropTypes from 'prop-types';
+import { useAlertContext } from '../../contexts/alertContext';
 
 
 const GoogleLoginComponent = ({ isInModal }) => { 
   const { login } = useTimeOutContext();
+const { showAlert } = useAlertContext();
+
   const googleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
@@ -37,6 +40,7 @@ const GoogleLoginComponent = ({ isInModal }) => {
         }
       } catch (error) {
         console.error("Error processing login:", error);
+        showAlert("Failed to login. Please try again later.", "error");
       }
     },
     onError: () => {

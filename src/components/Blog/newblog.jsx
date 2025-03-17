@@ -3,9 +3,10 @@ import { useState } from "react";
 import { GrClose } from "react-icons/gr";
 import PropTypes from "prop-types";
 import Compressor from "compressorjs";
-import { Alert } from "../Settings/alert";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import { useAlertContext } from "../../contexts/alertContext";
+
 
 export function NewBlogModal({ isOpen, onClose }) {
   const [title, setTitle] = useState("");
@@ -13,8 +14,7 @@ export function NewBlogModal({ isOpen, onClose }) {
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [errors, setErrors] = useState({ title: "", content: "" });
-  const [alertMessage, setAlertMessage] = useState("");
-  const [alertType, setAlertType] = useState("");
+  const { showAlert } = useAlertContext();
 
   const modules = {
     toolbar: [
@@ -50,8 +50,7 @@ export function NewBlogModal({ isOpen, onClose }) {
 
   const handleImageChange = (e) => {
     if (e.target.files[0].size > 5 * 1000 * 1024) {
-      setAlertMessage("File size should be less than 5MB");
-      setAlertType("warning");
+      showAlert("File size should be less than 5MB", "warning");
       e.target.value = null;
       setImage(null);
       setImagePreview(null);
@@ -69,8 +68,7 @@ export function NewBlogModal({ isOpen, onClose }) {
       },
       error(err) {
         console.error("Compression error:", err.message);
-        setAlertMessage("We ran into a trouble. Please try again later.");
-        setAlertType("error");
+        showAlert("We ran into a trouble. Please try again later.", "error");
         setImage(null);
         setImagePreview(null);
       },
@@ -133,10 +131,8 @@ export function NewBlogModal({ isOpen, onClose }) {
           window.dispatchEvent(new Event("newBlogSuccess"));
         }, 500);
       }
-    } catch (err) {
-      console.log(err);
-      setAlertMessage("Please try uploading another image.");
-      setAlertType("error");
+    } catch  {
+      showAlert("Failed to create blog. Please try again later.", "error");
     }
   };
 
@@ -144,14 +140,6 @@ export function NewBlogModal({ isOpen, onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-md p-4 sm:p-6 md:p-8">
-      {alertMessage && (
-        <Alert
-          type={alertType}
-          message={alertMessage}
-          onClose={() => setAlertMessage("")}
-          className="z-50"
-        />
-      )}
       <div className="bg-white p-4 sm:p-6 md:p-8 rounded-lg shadow-lg w-full max-w-2xl lg:max-w-4xl xl:max-w-5xl relative max-h-[90vh] overflow-y-auto animate-popIn">
         <button
           onClick={onClose}

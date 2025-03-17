@@ -8,8 +8,7 @@ import { NewBlogModal } from "../Blog/newblog";
 import Footer from "../Footer/footer";
 import { FetchBlogs } from "../Blog/blog";
 import { Alert } from "../Settings/alert";
-// import { BlogModal } from "./BlogModal";
-// import axios from "axios";
+import { useAlertContext } from "../../contexts/alertContext";
 
 function SearchBar({ searchQuery, setSearchQuery, setIsSearching }) {
   //add isSmallScreen state here for navbar
@@ -70,11 +69,11 @@ function Home() {
 // add states for categories section handling from notes
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
-  const [alertMessage, setAlertMessage] = useState("");
-  const [alertType, setAlertType] = useState("");
   const [isMyBlogs, setIsMyBlogs] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
+  const { showAlert } = useAlertContext();
+
   const profileRef = useRef(null);
   const navigate = useNavigate();
 
@@ -120,8 +119,7 @@ function Home() {
 
   useEffect(() => {
     const handleBlogSuccess = () => {
-      setAlertMessage("Blog creation successful.");
-      setAlertType("success");
+      showAlert("Blog created successfully!", "success");
     };
     window.addEventListener("newBlogSuccess", handleBlogSuccess);
     return () =>
@@ -158,15 +156,6 @@ function Home() {
       {/* Hamburger menu button comes here */}
         </div>
       </header>
-
-      {alertMessage && (
-        <Alert
-          type={alertType}
-          message={alertMessage}
-          onClose={() => setAlertMessage("")}
-          className="z-50"
-        />
-      )}
 
       {/*the dropdown menu code for mobile screens*/}
 

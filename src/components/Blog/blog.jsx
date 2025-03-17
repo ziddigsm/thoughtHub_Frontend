@@ -3,7 +3,7 @@ import { BlogCard } from "../Home/shimmer";
 import { useEffect, useState } from "react";
 import { Pagination } from "../Home/pagination";
 import { BlogModal } from "./blogmodal";
-import { Alert } from "../Settings/alert";
+import { useAlertContext } from "../../contexts/alertContext";
 import PropTypes from "prop-types";
 
 export function FetchBlogs({ isMyBlogs, searchQuery, isSearching }) {
@@ -13,8 +13,7 @@ export function FetchBlogs({ isMyBlogs, searchQuery, isSearching }) {
   const [page, setPage] = useState(1);
   const [selectedBlog, setSelectedBlog] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [alertMessage, setAlertMessage] = useState("");
-  const [alertType, setAlertType] = useState("");
+  const { showAlert } = useAlertContext();
 
   const limit = 9;
 
@@ -45,6 +44,7 @@ export function FetchBlogs({ isMyBlogs, searchQuery, isSearching }) {
       return response.data;
     } catch (error) {
       console.error("Error fetching blogs:", error);
+      showAlert("Error fetching blogs. Please try again later.", "error");
       throw error;
     }
   };
@@ -59,8 +59,7 @@ export function FetchBlogs({ isMyBlogs, searchQuery, isSearching }) {
       );
     } catch (err) {
       console.log(err);
-      setAlertMessage("Failed to fetch blogs. Please try again later.");
-      setAlertType("error");
+      showAlert("Failed to fetch blogs. Please try again later.", "error");
     } finally {
       setLoading(false);
     }
@@ -111,14 +110,6 @@ export function FetchBlogs({ isMyBlogs, searchQuery, isSearching }) {
 
   return (
     <div className="flex flex-col items-center pb-6">
-      {alertMessage && (
-        <Alert
-          type={alertType}
-          message={alertMessage}
-          onClose={() => setAlertMessage("")}
-          className="z-50"
-        />
-      )}
       <div className="relative grid grid-cols-1 md:grid-cols-2 justify-items-center lg:grid-cols-3 p-10 w-full gap-y-12 gap-x-12 z-10 sm:justify-items-center drop-shadow-2xl">
         {loading ? (
           [...Array(9)].map((_, index) => (

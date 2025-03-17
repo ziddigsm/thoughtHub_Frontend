@@ -14,8 +14,8 @@ import {
 import { FaXTwitter } from "react-icons/fa6";
 import { MdDelete } from "react-icons/md";
 import axios from "axios";
-import { Alert } from "../Settings/alert";
 import Warning from "../../utils/warningModal";
+import { useAlertContext } from "../../contexts/alertContext";
 
 export function BlogModal({ blog, isOpen, onClose, onAddComment }) {
   const modalRef = useRef(null);
@@ -34,12 +34,11 @@ export function BlogModal({ blog, isOpen, onClose, onAddComment }) {
   const [summary, setSummary] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [alertMessage, setAlertMessage] = useState("");
-  const [alertType, setAlertType] = useState("");
   const [isWarning, setIsWarning] = useState(false);
   const [warningMessage, setWarningMessage] = useState(
     "Are you sure you want to delete this blog? There's no going back."
   );
+  const { showAlert } = useAlertContext();
 
   useEffect(() => {
     const wordCount = blog.blog_data.content.split(/\s+/).length;
@@ -104,13 +103,11 @@ export function BlogModal({ blog, isOpen, onClose, onAddComment }) {
       
       if (deleteResponse.status === 200) {
         window.dispatchEvent(new Event("blogDeleted"));
-        setAlertMessage("Blog deleted successfully");
-        setAlertType("success");
+        showAlert("Blog deleted successfully.", "success");
         onClose();
       }
     } catch (error) {
-      setAlertMessage(error.response?.data?.message || "Deletion failed");
-      setAlertType("error");
+      showAlert(error.response?.data?.message || "Could not delete blog.", "error");
     }
   };
 
@@ -123,14 +120,6 @@ export function BlogModal({ blog, isOpen, onClose, onAddComment }) {
 
   return (
     <div className="fixed z-40 flex justify-center p-10">
-      {alertMessage && (
-        <Alert
-          type={alertType}
-          message={alertMessage}
-          onClose={() => setAlertMessage("")}
-          className="z-50"
-        />
-      )}
       {isWarning && (
          <Warning message={warningMessage} 
          onClose={() => setIsWarning(false)}
