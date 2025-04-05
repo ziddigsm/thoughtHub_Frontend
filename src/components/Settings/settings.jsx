@@ -1,16 +1,12 @@
 import { useCallback, useState } from "react";
 import PropTypes from "prop-types";
-import {
-  FaLinkedin,
-  FaGithub,
-  FaInstagram,
-  FaFacebook,
-  FaTwitter,
-} from "react-icons/fa";
+import { FaLinkedin, FaGithub, FaInstagram, FaFacebook } from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
 import { FiArrowLeft } from "react-icons/fi";
 import { useLogout } from "../../contexts/useLogout";
 import axios from "axios";
 import Footer from "../Footer/footer";
+import { useAlertContext } from "../../contexts/alertContext";
 
 export function Settings() {
   const userData = JSON.parse(localStorage.getItem("userData"));
@@ -25,10 +21,9 @@ export function Settings() {
     instagram: userData?.socials?.Instagram || "",
     facebook: userData?.socials?.Facebook || "",
     twitter: userData?.socials?.Twitter || "",
-});
+  });
   const [isAboutUpdated, setIsAboutUpdated] = useState(false);
   const [isSocialUpdated, setIsSocialUpdated] = useState(false);
-  const [isNameUpdated, setIsNameUpdated] = useState(false);
   const [isUsernameUpdated, setIsUsernameUpdated] = useState(false);
   const [isGithubUpdated, setIsGithubUpdated] = useState(false);
   const [isLinkedinUpdated, setIsLinkedinUpdated] = useState(false);
@@ -36,9 +31,8 @@ export function Settings() {
   const [isFacebookUpdated, setIsFacebookUpdated] = useState(false);
   const [isTwitterUpdated, setIsTwitterUpdated] = useState(false);
 
-
   const handleLogout = useLogout().handleLogout;
-
+  const { showAlert } = useAlertContext();
   const handleSettings = (setting) => {
     switch (setting) {
       case "about":
@@ -56,84 +50,103 @@ export function Settings() {
     }
   };
 
-  const handleEdit = useCallback((property, value) => {
-    setUserDetails((oldDetails) => ({ ...oldDetails, [property]: value }));
-    if (property === "name") {
-      setIsNameUpdated(true);
-    }
-    else if (property === "username") {
-      setIsUsernameUpdated(true);
-    }
-    else if (property === "github") {
-      setIsGithubUpdated(true);
-    }
-    else if (property === "linkedin") {
-      setIsLinkedinUpdated(true);
-    }
-    else if (property === "instagram") {
-      setIsInstagramUpdated(true);
-    }
-    else if (property === "facebook") {
-      setIsFacebookUpdated(true);
-    }
-    else if (property === "twitter") {
-      setIsTwitterUpdated(true);
-    }
-    if(settings === "about") {
-      setIsAboutUpdated(true);
-    }
-    if(settings === "social") {
-      setIsSocialUpdated(true);
-    }
-  }, [settings]);
+  const handleEdit = useCallback(
+    (property, value) => {
+      setUserDetails((oldDetails) => ({ ...oldDetails, [property]: value }));
+      if (property === "username") {
+        setIsUsernameUpdated(true);
+      } else if (property === "github") {
+        setIsGithubUpdated(true);
+      } else if (property === "linkedin") {
+        setIsLinkedinUpdated(true);
+      } else if (property === "instagram") {
+        setIsInstagramUpdated(true);
+      } else if (property === "facebook") {
+        setIsFacebookUpdated(true);
+      } else if (property === "twitter") {
+        setIsTwitterUpdated(true);
+      }
+      if (settings === "about") {
+        setIsAboutUpdated(true);
+      }
+      if (settings === "social") {
+        setIsSocialUpdated(true);
+      }
+    },
+    [settings]
+  );
 
   const saveAboutData = async (userDetails) => {
     let aboutRequestBody = {
-      "id": userData.user_id,
-      "is_active": userData.is_active,
+      id: userData.user_id,
+      is_active: userData.is_active,
     };
-    if(isNameUpdated) {
-      aboutRequestBody.name = userDetails.name;
-    }
-    if(isUsernameUpdated) {
+    aboutRequestBody.name = userDetails.name;
+
+    if (isUsernameUpdated) {
       aboutRequestBody.username = userDetails.username;
     }
-    await axios.post(import.meta.env.VITE_POST_SAVE_ABOUT_GO_API, aboutRequestBody).then(res => {
-      if(res.status === 200) {
-        setIsAboutUpdated(false);
-        userData.name = userDetails.name;
-        userData.username = userDetails.username;
-        localStorage.setItem("userData", JSON.stringify(userData));
-        alert("User Information updated successfully");
-      }
-    });
-  }
+    await axios
+      .post(import.meta.env.VITE_POST_SAVE_ABOUT_GO_API, aboutRequestBody)
+      .then((res) => {
+        if (res.status === 200) {
+          setIsAboutUpdated(false);
+          userData.name = userDetails.name;
+          userData.username = userDetails.username;
+          localStorage.setItem("userData", JSON.stringify(userData));
+          showAlert("User Information updated successfully", "success");
+        }
+      });
+  };
 
+  const isValidUrl = (url) => {
+    try {
+      if (url !== "") {
+        new URL(url);
+      }
+      return true;
+    } catch {
+      return false;
+    }
+  };
   const saveSocialData = async (userDetails) => {
     let socialRequestBody = {
-      "user_id": userData.user_id,
-      "is_active": userData.is_active,
-      "socials": []
+      user_id: userData.user_id,
+      is_active: userData.is_active,
+      socials: [],
     };
-
-    if (isGithubUpdated) {
-      socialRequestBody.socials.push({GitHub: userDetails.github });
-    }
-    if (isLinkedinUpdated) {
-      socialRequestBody.socials.push({LinkedIn: userDetails.linkedin });
-    }
-    if (isInstagramUpdated) {
-      socialRequestBody.socials.push({Instagram: userDetails.instagram });
-    }
-    if (isFacebookUpdated) {
-      socialRequestBody.socials.push({Facebook: userDetails.facebook });
-    }
-    if (isTwitterUpdated) {
-      socialRequestBody.socials.push({Twitter: userDetails.twitter });
-    }
-
+    let urlCheckPass = 0;
     try {
-      const response = await axios.post(import.meta.env.VITE_POST_SAVE_SOCIAL_GO_API, socialRequestBody);
+      if (isGithubUpdated && isValidUrl(userDetails.github)) {
+        socialRequestBody.socials.push({ GitHub: userDetails.github });
+        urlCheckPass++;
+      }
+      if (isLinkedinUpdated && isValidUrl(userDetails.linkedin)) {
+        socialRequestBody.socials.push({ LinkedIn: userDetails.linkedin });
+        urlCheckPass++;
+      }
+      if (isInstagramUpdated && isValidUrl(userDetails.instagram)) {
+        socialRequestBody.socials.push({ Instagram: userDetails.instagram });
+        urlCheckPass++;
+      }
+      if (isFacebookUpdated && isValidUrl(userDetails.facebook)) {
+        socialRequestBody.socials.push({ Facebook: userDetails.facebook });
+        urlCheckPass++;
+      }
+      if (isTwitterUpdated && isValidUrl(userDetails.twitter)) {
+        socialRequestBody.socials.push({ Twitter: userDetails.twitter });
+        urlCheckPass++;
+      }
+      if (urlCheckPass === 0) {
+        throw new Error(
+          "Please enter valid URLs for social media profiles beginning with https:// or http://"
+        );
+      }
+
+      const response = await axios.post(
+        import.meta.env.VITE_POST_SAVE_SOCIAL_GO_API,
+        socialRequestBody
+      );
       if (response.status === 200) {
         setIsSocialUpdated(false);
         userData.socials = {
@@ -141,14 +154,13 @@ export function Settings() {
           LinkedIn: userDetails.linkedin,
           Instagram: userDetails.instagram,
           Facebook: userDetails.facebook,
-          Twitter: userDetails.twitter
+          Twitter: userDetails.twitter,
         };
         localStorage.setItem("userData", JSON.stringify(userData));
-        alert("Social links updated successfully");
+        showAlert("Social media profiles updated successfully", "success");
       }
     } catch (error) {
-      console.error('Error saving social data:', error);
-      alert("Failed to update social links");
+      showAlert(error.message || "Failed to update social media profiles. Please try again later.", "error");
     }
   };
 
@@ -156,13 +168,13 @@ export function Settings() {
     if (settings === "about") {
       saveAboutData(userDetails);
     }
-    if(settings === "social") {
+    if (settings === "social") {
       saveSocialData(userDetails);
     }
-  }
+  };
 
   return (
-    <div >
+    <div>
       <div className="flex flex-row max-md:flex-col h-screen w-screen">
         <div className="flex flex-col max-md:flex-row items-center max-md:justify-between rounded-lg shadow-lg m-6 max-md:m-4 max-md:p-3 p-6 w-64 max-md:w-auto bg-white max-sm:m-3 max-sm:p-3">
           <h1 className="text-4xl text-gray-900 font-bold p-4 text-center max-sm:text-lg">
@@ -209,8 +221,12 @@ export function Settings() {
               {settings !== "options" && (
                 <button
                   type="button"
-                  className={`px-6 py-3 bg-thought-100 text-white text-lg font-semibold rounded-lg hover:bg-thought-200 transition max-sm:px-4 max-sm:py-2 ${!isAboutUpdated && !isSocialUpdated ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
-                  onClick={handleOnSave} 
+                  className={`px-6 py-3 bg-thought-100 text-white text-lg font-semibold rounded-lg hover:bg-thought-200 transition max-sm:px-4 max-sm:py-2 ${
+                    !isAboutUpdated && !isSocialUpdated
+                      ? "opacity-60 cursor-not-allowed"
+                      : "cursor-pointer"
+                  }`}
+                  onClick={handleOnSave}
                   disabled={!isAboutUpdated && !isSocialUpdated}
                 >
                   Save
@@ -218,7 +234,10 @@ export function Settings() {
               )}
               <div className="flex flex-row items-center hover:scale-105">
                 <FiArrowLeft className="text-gray-900" />
-                <a href="/home" className="text-hub-100 flex-shrink hover:underline">
+                <a
+                  href="/home"
+                  className="text-hub-100 flex-shrink hover:underline"
+                >
                   Go to Home
                 </a>
               </div>
@@ -246,7 +265,13 @@ function AboutSection({ userDetails, handleEdit }) {
             type="text"
             placeholder="Enter your name"
             value={userDetails?.name}
-            onChange={(e) => handleEdit("name", e.target.value)}
+            maxLength="60"
+            onChange={(e) => {
+              const value = e.target.value;
+              if (/^[A-Za-z\s]*$/.test(value)) {
+                handleEdit("name", value);
+              }
+            }}
           />
         </div>
         <div className="hover:scale-105 transition-transform">
@@ -258,7 +283,7 @@ function AboutSection({ userDetails, handleEdit }) {
             placeholder="Enter your username"
             value={userDetails?.username}
             onChange={(e) => {
-              handleEdit("username", e.target.value)
+              handleEdit("username", e.target.value);
             }}
           />
         </div>
@@ -291,7 +316,7 @@ function SocialsSection({ userDetails, handleEdit }) {
       placeholder: "LinkedIn URL",
       value: userDetails.linkedin,
       onChange: (e) => handleEdit("linkedin", e.target.value),
-      props: 'text-blue-600'
+      props: "text-blue-600",
     },
     {
       name: "github",
@@ -299,7 +324,7 @@ function SocialsSection({ userDetails, handleEdit }) {
       placeholder: "GitHub URL",
       value: userDetails.github,
       onChange: (e) => handleEdit("github", e.target.value),
-      props: 'text-gray-800'
+      props: "text-gray-800",
     },
     {
       name: "facebook",
@@ -307,7 +332,7 @@ function SocialsSection({ userDetails, handleEdit }) {
       placeholder: "Facebook URL",
       value: userDetails.facebook,
       onChange: (e) => handleEdit("facebook", e.target.value),
-      props: 'text-blue-700'
+      props: "text-blue-700",
     },
     {
       name: "instagram",
@@ -315,15 +340,15 @@ function SocialsSection({ userDetails, handleEdit }) {
       placeholder: "Instagram URL",
       value: userDetails.instagram,
       onChange: (e) => handleEdit("instagram", e.target.value),
-      props: 'text-pink-900'
+      props: "text-pink-900",
     },
     {
       name: "twitter",
-      tag: FaTwitter,
+      tag: FaXTwitter,
       placeholder: "Twitter URL",
       value: userDetails.twitter,
       onChange: (e) => handleEdit("twitter", e.target.value),
-      props: 'text-blue-400'
+      props: "text-black",
     },
   ];
 
@@ -344,8 +369,10 @@ function SocialsSection({ userDetails, handleEdit }) {
               <InputField
                 type="url"
                 placeholder={key.placeholder}
-                value={key.value || ""} 
+                value={key.value || ""}
                 onChange={key.onChange}
+                pattern="https?://.*"
+                title="Please enter a URL beginning with http:// or https://"
               />
             </div>
           );
@@ -403,5 +430,3 @@ InputField.propTypes = {
   className: PropTypes.string,
   onChange: PropTypes.func,
 };
-
-export default Settings;

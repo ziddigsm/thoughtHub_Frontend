@@ -32,13 +32,12 @@ function Login() {
         `${import.meta.env.VITE_GET_BLOG_DATA_GO_API + parseInt(blogId) + limitOffsetForLoginPage}`
       );
       const responses = await Promise.all([blogRequest]);
-      console.log('API Response:', responses); // For debugging
 
       // Validate and clean the blog data
       const blogs = responses
         .map((response) => response.data?.blogs)
         .flat()
-        .filter(post => post && post.blog_data && post.blog_data.id); // Ensure required fields exist
+        .filter(post => post && post.blog_data && post.blog_data.id); 
 
       if (blogs.length === 0) {
         setError("No blog posts found");
@@ -126,7 +125,7 @@ function Login() {
               alt={post.blog_data.title || 'Blog post image'}
               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               onError={(e) => {
-                e.target.src = 'path/to/fallback/image.jpg'; // Add a fallback image path
+                e.target.src = 'image.jpg'; // fallback image path
                 e.target.alt = 'Failed to load image';
               }}
             />

@@ -4,14 +4,16 @@ import './google.css';
 import { FaGoogle } from 'react-icons/fa';
 import {useTimeOutContext} from '../../contexts/timeOutContext';
 import PropTypes from 'prop-types';
+import { useAlertContext } from '../../contexts/alertContext';
 
 
 const GoogleLoginComponent = ({ isInModal }) => { 
   const { login } = useTimeOutContext();
+const { showAlert } = useAlertContext();
+
   const googleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
-        console.log("Login Success:", tokenResponse.access_token);
         const userInfoResponse = await axios.get(import.meta.env.VITE_GET_USER_INFO_GOOGLE_API, {
           headers: {
             Authorization: `Bearer ${tokenResponse.access_token}`
@@ -30,7 +32,6 @@ const GoogleLoginComponent = ({ isInModal }) => {
         userData.is_active = response.data.is_active;
         userData.socials = response.data.socials;  
         login(userData); 
-        console.log("User Logged in successfully:", response.data);
         if (response.status === 200) {
           window.location.href = "/home";
         }
@@ -39,6 +40,7 @@ const GoogleLoginComponent = ({ isInModal }) => {
         }
       } catch (error) {
         console.error("Error processing login:", error);
+        showAlert("Failed to login. Please try again later.", "error");
       }
     },
     onError: () => {

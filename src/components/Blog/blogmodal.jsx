@@ -6,12 +6,15 @@ import {
   FaCheckCircle,
   FaHeart,
   FaFacebook,
-  FaTwitter,
   FaLinkedin,
-  FaInstagram,
-  FaGithub,
+  FaCopy,
   FaRobot,
 } from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
+import { MdDelete } from "react-icons/md";
+import axios from "axios";
+import Warning from "../../utils/warningModal";
+import { useAlertContext } from "../../contexts/alertContext";
 
 export function BlogModal({ blog, isOpen, onClose, onAddComment }) {
   const modalRef = useRef(null);
@@ -21,12 +24,20 @@ export function BlogModal({ blog, isOpen, onClose, onAddComment }) {
     }
   }, [isOpen]);
 
+  const userData = JSON.parse(localStorage.getItem("userData"));
+  const userId = userData ? userData.user_id : null;
+
   const [newComment, setNewComment] = useState("");
   const [activeTab, setActiveTab] = useState("content");
   const [readTime, setReadTime] = useState(0);
   const [summary, setSummary] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [isWarning, setIsWarning] = useState(false);
+  const [warningMessage, setWarningMessage] = useState(
+    "Are you sure you want to delete this blog? There's no going back."
+  );
+  const { showAlert } = useAlertContext();
 
   useEffect(() => {
     const wordCount = blog.blog_data.content.split(/\s+/).length;
@@ -54,27 +65,48 @@ export function BlogModal({ blog, isOpen, onClose, onAddComment }) {
       if (!summarizeUrl) {
         throw new Error("Summarize API URL is not defined.");
       }
-      const response = await fetch(summarizeUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({ id: blog.blog_data.id }),
+      const response = await axios.post("/api/summarize", {
+        body: JSON.stringify({ text: blog.blog_data.content }),
       });
-
-      if (!response.ok) {
+      if (!response.status === 200) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const data = await response.json();
+      const data = JSON.parse(response?.data?.body);
       setSummary(data.summary);
       setActiveTab("summary");
-    // eslint-disable-next-line no-unused-vars
-    } catch (err) {
+    } catch {
       setError("Failed to generate summary. Please try again later.");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleDeleteBlog = () => {
+    setIsWarning(true);
+    setWarningMessage(
+      "Are you sure you want to delete this blog? This action cannot be undone."
+    );
+  };
+
+  const handleDeleteConfirmation = async () => {
+    setIsWarning(false);
+    try {
+      const deleteBlogAPI = `${import.meta.env.VITE_DELETE_BLOG_GO_API}${
+        blog.blog_data.id
+      }&userId=${userId}`;
+      const deleteResponse = await axios.delete(deleteBlogAPI);
+
+      if (deleteResponse.status === 200) {
+        window.dispatchEvent(new Event("blogDeleted"));
+        showAlert("Blog deleted successfully.", "success");
+        onClose();
+      }
+    } catch (error) {
+      showAlert(
+        error.response?.data?.message || "Could not delete blog.",
+        "error"
+      );
     }
   };
 
@@ -85,8 +117,28 @@ export function BlogModal({ blog, isOpen, onClose, onAddComment }) {
     ...(summary ? ["summary"] : []),
   ];
 
+  const encodedUrl = encodeURIComponent(window.location.href);
+  const encodedText = encodeURIComponent(
+    `${blog.blog_data.title} - Check out this blog!`
+  );
+  const socialUrls = {
+    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
+    twitter: `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`,
+    linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,
+  };
+  const handleSharing = (url) => {
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
+
   return (
-    <div className="fixed z-50 flex justify-center p-10">
+    <div className="fixed z-40 flex justify-center p-10">
+      {isWarning && (
+        <Warning
+          message={warningMessage}
+          onClose={() => setIsWarning(false)}
+          onConfirm={handleDeleteConfirmation}
+        />
+      )}
       <div
         className="fixed inset-0 cursor-pointer bg-gradient-to-b from-transparent via-gray-900/60 to-transparent backdrop-blur-sm"
         onClick={onClose}
@@ -122,6 +174,11 @@ export function BlogModal({ blog, isOpen, onClose, onAddComment }) {
                   <FaClock className="text-gray-400" />
                   <span>{readTime} min read</span>
                 </div>
+                <span className="opacity-30">•</span>
+                <MdDelete
+                  className="text-thought-100 hover:text-hub-100 cursor-pointer size-6"
+                  onClick={handleDeleteBlog}
+                />
               </div>
             </div>
             <button
@@ -168,7 +225,7 @@ export function BlogModal({ blog, isOpen, onClose, onAddComment }) {
               {/* Hover Message for "comments" and "about" tabs */}
               {(tab === "comments" || tab === "about") && (
                 <div className="absolute hidden group-hover:block z-50 bg-thought-75 text-hub-100 text-sm p-2 rounded mt-2 top-full left-1/2 transform -translate-x-1/2 whitespace-nowrap">
-                  {`Coming soon`}
+                  Coming soon
                 </div>
               )}
             </div>
@@ -199,36 +256,42 @@ export function BlogModal({ blog, isOpen, onClose, onAddComment }) {
 
               <div className="mt-8 flex justify-between items-center">
                 <div className="flex space-x-6 text-gray-600">
-                  <a
+                  <button
                     href="#"
                     className="hover:text-blue-600 transition-all duration-200"
                   >
-                    <FaFacebook size={28} />
-                  </a>
-                  <a
+                    <FaFacebook
+                      size={28}
+                      onClick={() => handleSharing(socialUrls.facebook)}
+                    />
+                  </button>
+                  <button
                     href="#"
-                    className="hover:text-gray-800 transition-all duration-200"
+                    className="hover:text-black transition-all duration-200"
                   >
-                    <FaGithub size={28} />
-                  </a>
-                  <a
-                    href="#"
-                    className="hover:text-blue-500 transition-all duration-200"
-                  >
-                    <FaTwitter size={28} />
-                  </a>
-                  <a
-                    href="#"
-                    className="hover:text-pink-600 transition-all duration-200"
-                  >
-                    <FaInstagram size={28} />
-                  </a>
-                  <a
+                    <FaXTwitter
+                      size={28}
+                      onClick={() => handleSharing(socialUrls.twitter)}
+                    />
+                  </button>
+                  <button
                     href="#"
                     className="hover:text-blue-700 transition-all duration-200"
                   >
-                    <FaLinkedin size={28} />
-                  </a>
+                    <FaLinkedin
+                      size={28}
+                      onClick={() => handleSharing(socialUrls.linkedin)}
+                    />
+                  </button>
+                  <button className="hover:text-thought-100 transition-all duration-200">
+                    <FaCopy
+                      size={24}
+                      onClick={() => {
+                        navigator.clipboard.writeText(window.location.href);
+                        showAlert("Link copied to clipboard!", "info");
+                      }}
+                    />
+                  </button>
                 </div>
                 <div className="flex items-center space-x-4 text-gray-700">
                   <div className="flex items-center space-x-2">
