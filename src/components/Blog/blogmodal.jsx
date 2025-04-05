@@ -65,24 +65,17 @@ export function BlogModal({ blog, isOpen, onClose, onAddComment }) {
       if (!summarizeUrl) {
         throw new Error("Summarize API URL is not defined.");
       }
-      const response = await fetch(summarizeUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({ id: blog.blog_data.id }),
+      const response = await axios.post("/api/summarize", {
+        body: JSON.stringify({ text: blog.blog_data.content }),
       });
-
-      if (!response.ok) {
+      if (!response.status === 200) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const data = await response.json();
+      const data = JSON.parse(response?.data?.body);
       setSummary(data.summary);
       setActiveTab("summary");
-      // eslint-disable-next-line no-unused-vars
-    } catch (err) {
+    } catch {
       setError("Failed to generate summary. Please try again later.");
     } finally {
       setIsLoading(false);
@@ -269,7 +262,7 @@ export function BlogModal({ blog, isOpen, onClose, onAddComment }) {
                   >
                     <FaFacebook
                       size={28}
-                      onClick={()=> handleSharing(socialUrls.facebook)}
+                      onClick={() => handleSharing(socialUrls.facebook)}
                     />
                   </button>
                   <button
@@ -278,7 +271,7 @@ export function BlogModal({ blog, isOpen, onClose, onAddComment }) {
                   >
                     <FaXTwitter
                       size={28}
-                      onClick={()=> handleSharing(socialUrls.twitter)}
+                      onClick={() => handleSharing(socialUrls.twitter)}
                     />
                   </button>
                   <button
@@ -291,11 +284,13 @@ export function BlogModal({ blog, isOpen, onClose, onAddComment }) {
                     />
                   </button>
                   <button className="hover:text-thought-100 transition-all duration-200">
-                    <FaCopy size = {24}
-                    onClick={() => {
-                      navigator.clipboard.writeText(window.location.href);
-                      showAlert("Link copied to clipboard!", "info");
-                    }} />
+                    <FaCopy
+                      size={24}
+                      onClick={() => {
+                        navigator.clipboard.writeText(window.location.href);
+                        showAlert("Link copied to clipboard!", "info");
+                      }}
+                    />
                   </button>
                 </div>
                 <div className="flex items-center space-x-4 text-gray-700">
