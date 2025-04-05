@@ -6,7 +6,7 @@ import { FiArrowLeft } from "react-icons/fi";
 import { useLogout } from "../../contexts/useLogout";
 import axios from "axios";
 import Footer from "../Footer/footer";
-import { Alert } from "./alert";
+import { useAlertContext } from "../../contexts/alertContext";
 
 export function Settings() {
   const userData = JSON.parse(localStorage.getItem("userData"));
@@ -30,11 +30,9 @@ export function Settings() {
   const [isInstagramUpdated, setIsInstagramUpdated] = useState(false);
   const [isFacebookUpdated, setIsFacebookUpdated] = useState(false);
   const [isTwitterUpdated, setIsTwitterUpdated] = useState(false);
-  const [alertMessage, setAlertMessage] = useState("");
-  const [alertType, setAlertType] = useState("");
 
   const handleLogout = useLogout().handleLogout;
-
+  const { showAlert } = useAlertContext();
   const handleSettings = (setting) => {
     switch (setting) {
       case "about":
@@ -96,8 +94,7 @@ export function Settings() {
           userData.name = userDetails.name;
           userData.username = userDetails.username;
           localStorage.setItem("userData", JSON.stringify(userData));
-          setAlertMessage("User Information updated successfully");
-          setAlertType("success");
+          showAlert("User Information updated successfully", "success");
         }
       });
   };
@@ -160,15 +157,10 @@ export function Settings() {
           Twitter: userDetails.twitter,
         };
         localStorage.setItem("userData", JSON.stringify(userData));
-        setAlertMessage("Social media profiles updated successfully");
-        setAlertType("success");
+        showAlert("Social media profiles updated successfully", "success");
       }
     } catch (error) {
-      setAlertMessage(
-        error.message ||
-          "Failed to update social media profiles. Please try again later."
-      );
-      setAlertType("error");
+      showAlert(error.message || "Failed to update social media profiles. Please try again later.", "error");
     }
   };
 
@@ -183,14 +175,6 @@ export function Settings() {
 
   return (
     <div>
-      {alertMessage && (
-        <Alert
-          type={alertType}
-          message={alertMessage}
-          onClose={() => setAlertMessage("")}
-          className="z-50"
-        />
-      )}
       <div className="flex flex-row max-md:flex-col h-screen w-screen">
         <div className="flex flex-col max-md:flex-row items-center max-md:justify-between rounded-lg shadow-lg m-6 max-md:m-4 max-md:p-3 p-6 w-64 max-md:w-auto bg-white max-sm:m-3 max-sm:p-3">
           <h1 className="text-4xl text-gray-900 font-bold p-4 text-center max-sm:text-lg">
@@ -364,7 +348,7 @@ function SocialsSection({ userDetails, handleEdit }) {
       placeholder: "Twitter URL",
       value: userDetails.twitter,
       onChange: (e) => handleEdit("twitter", e.target.value),
-      props: "text-blue-400",
+      props: "text-black",
     },
   ];
 
