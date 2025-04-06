@@ -13,11 +13,20 @@ import {
 import { FaXTwitter } from "react-icons/fa6";
 import { MdDelete } from "react-icons/md";
 import axios from "axios";
-import Warning from "../../utils/warningModal";
+import { Alert } from "../Settings/alert";
 import { useAlertContext } from "../../contexts/alertContext";
+import { useModal } from "../../contexts/warningContext";
 
-export function BlogModal({ blog, isOpen, onClose, onAddComment }) {
+export function BlogModal({
+  blog,
+  isOpen,
+  onClose,
+  onAddComment,
+  onBlogDelete,
+}) {
   const modalRef = useRef(null);
+  const { showWarning } = useModal();
+
   useEffect(() => {
     if (isOpen && modalRef.current) {
       window.scrollTo({ top: 170, behavior: "smooth" });
@@ -33,11 +42,9 @@ export function BlogModal({ blog, isOpen, onClose, onAddComment }) {
   const [summary, setSummary] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [isWarning, setIsWarning] = useState(false);
-  const [warningMessage, setWarningMessage] = useState(
-    "Are you sure you want to delete this blog? There's no going back."
-  );
-  const { showAlert } = useAlertContext();
+const { showAlert } = useAlertContext();
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertType, setAlertType] = useState("");
 
   useEffect(() => {
     const wordCount = blog.blog_data.content.split(/\s+/).length;
@@ -83,14 +90,13 @@ export function BlogModal({ blog, isOpen, onClose, onAddComment }) {
   };
 
   const handleDeleteBlog = () => {
-    setIsWarning(true);
-    setWarningMessage(
-      "Are you sure you want to delete this blog? This action cannot be undone."
+    showWarning(
+      "Are you sure you want to delete this blog? This action cannot be undone.",
+      handleDeleteConfirmation
     );
   };
 
   const handleDeleteConfirmation = async () => {
-    setIsWarning(false);
     try {
       const deleteBlogAPI = `${import.meta.env.VITE_DELETE_BLOG_GO_API}${
         blog.blog_data.id
@@ -98,11 +104,15 @@ export function BlogModal({ blog, isOpen, onClose, onAddComment }) {
       const deleteResponse = await axios.delete(deleteBlogAPI);
 
       if (deleteResponse.status === 200) {
-        window.dispatchEvent(new Event("blogDeleted"));
+      
+        onBlogDelete(blog.blog_data.id);
+
         showAlert("Blog deleted successfully.", "success");
+
         onClose();
       }
     } catch (error) {
+    
       showAlert(
         error.response?.data?.message || "Could not delete blog.",
         "error"
@@ -131,14 +141,8 @@ export function BlogModal({ blog, isOpen, onClose, onAddComment }) {
   };
 
   return (
-    <div className="fixed z-40 flex justify-center p-10">
-      {isWarning && (
-        <Warning
-          message={warningMessage}
-          onClose={() => setIsWarning(false)}
-          onConfirm={handleDeleteConfirmation}
-        />
-      )}
+    <div className="fixed z-40 flex justify-center p-2 sm:p-4 md:p-10 ">
+     
       <div
         className="fixed inset-0 cursor-pointer bg-gradient-to-b from-transparent via-gray-900/60 to-transparent backdrop-blur-sm"
         onClick={onClose}
@@ -151,10 +155,11 @@ export function BlogModal({ blog, isOpen, onClose, onAddComment }) {
         <div className="bg-white/90 border-b border-gray-200 p-6">
           <div className="flex justify-between items-start">
             <div>
-              <h1 className="text-4xl font-semibold text-gray-900 tracking-tight mb-2">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-gray-900 tracking-tight mb-2">
                 {blog.blog_data.title}
               </h1>
-              <div className="flex items-center space-x-4 text-gray-600">
+              <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-4 text-gray-600">
+                {" "}
                 <div className="flex items-center space-x-3">
                   <img
                     src="https://via.placeholder.com/50"
@@ -162,7 +167,9 @@ export function BlogModal({ blog, isOpen, onClose, onAddComment }) {
                     className="w-10 h-10 rounded-full object-cover border border-gray-200"
                   />
                   <div>
-                    <span className="font-medium">{blog.blog_data.name}</span>
+                    <span className="font-normal md:font-medium">
+                      {blog.blog_data.name}
+                    </span>
                     <div className="text-xs flex items-center text-gray-500">
                       <FaCheckCircle className="text-green-500 mr-1" />
                       Verified Author
@@ -176,7 +183,7 @@ export function BlogModal({ blog, isOpen, onClose, onAddComment }) {
                 </div>
                 <span className="opacity-30">•</span>
                 <MdDelete
-                  className="text-thought-100 hover:text-hub-100 cursor-pointer size-6"
+                  className="text-thought-100 hover:text-hub-100 cursor-pointer size-8 sm:size-7"
                   onClick={handleDeleteBlog}
                 />
               </div>
@@ -434,4 +441,5 @@ BlogModal.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   onAddComment: PropTypes.func.isRequired,
+  onBlogDelete: PropTypes.func.isRequired,
 };

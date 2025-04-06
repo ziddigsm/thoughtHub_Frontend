@@ -107,6 +107,9 @@ export function FetchBlogs({ isMyBlogs, searchQuery, isSearching }) {
     setSelectedBlog(null);
     setIsModalOpen(false);
   };
+  const handleBlogDelete = (deletedBlogId) => {
+    setBlogs(prevBlogs => prevBlogs.filter(blog => blog.blog_data.id !== deletedBlogId));
+  };
 
   return (
     <div className="flex flex-col items-center pb-6">
@@ -123,6 +126,7 @@ export function FetchBlogs({ isMyBlogs, searchQuery, isSearching }) {
               isData={true}
               blog={blog}
               onClick={() => openBlogModal(blog)}
+              onBlogDelete={handleBlogDelete}
             />
           ))
         ) : (
