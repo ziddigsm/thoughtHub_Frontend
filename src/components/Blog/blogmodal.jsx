@@ -30,10 +30,10 @@ export function BlogModal({
     if (isOpen && modalRef.current) {
       // Scroll the modal into view when it opens
       modalRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
-      
+
       // Lock the body scroll when modal is open
       document.body.style.overflow = "hidden";
-      
+
       // Cleanup function to restore scrolling when modal closes
       return () => {
         document.body.style.overflow = "auto";
@@ -145,13 +145,27 @@ export function BlogModal({
   };
 
   return (
-<div className="fixed z-40 flex items-start justify-center p-2 sm:p-4 md:p-10 inset-0 ">
-<div
+    <div
+      className="fixed z-50 w-full flex justify-center"
+      style={{
+        top: "100px", 
+        bottom: "0",
+        left: "0",
+        right: "0",
+        overflowY: "auto",
+      }}
+    >
+      <div
         className="fixed inset-0 cursor-pointer bg-gradient-to-b from-transparent via-gray-900/60 to-transparent backdrop-blur-sm"
         onClick={onClose}
+        style={{ top: "100px" }}
       ></div>
-    <div ref={modalRef} className="relative w-full max-w-4xl mx-auto my-4 bg-white/95 rounded-2xl shadow-2xl border border-gray-200 overflow-hidden max-h-[calc(100vh-2rem)] flex flex-col">
 
+      <div
+        ref={modalRef}
+        className="relative w-full max-w-4xl mx-4 my-4 bg-white/95 rounded-2xl shadow-2xl border border-gray-200 overflow-hidden flex flex-col"
+        style={{ maxHeight: "calc(100vh - 120px)" }} 
+      >
         {/* Header */}
         <div className="bg-white/90 border-b border-gray-200 p-6">
           <div className="flex justify-between items-start">
