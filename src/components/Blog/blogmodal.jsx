@@ -13,7 +13,6 @@ import {
 import { FaXTwitter } from "react-icons/fa6";
 import { MdDelete } from "react-icons/md";
 import axios from "axios";
-import { Alert } from "../Settings/alert";
 import { useAlertContext } from "../../contexts/alertContext";
 import { useModal } from "../../contexts/warningContext";
 
@@ -29,7 +28,16 @@ export function BlogModal({
 
   useEffect(() => {
     if (isOpen && modalRef.current) {
-      window.scrollTo({ top: 170, behavior: "smooth" });
+      // Scroll the modal into view when it opens
+      modalRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+      
+      // Lock the body scroll when modal is open
+      document.body.style.overflow = "hidden";
+      
+      // Cleanup function to restore scrolling when modal closes
+      return () => {
+        document.body.style.overflow = "auto";
+      };
     }
   }, [isOpen]);
 
@@ -42,9 +50,7 @@ export function BlogModal({
   const [summary, setSummary] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-const { showAlert } = useAlertContext();
-  const [alertMessage, setAlertMessage] = useState("");
-  const [alertType, setAlertType] = useState("");
+  const { showAlert } = useAlertContext();
 
   useEffect(() => {
     const wordCount = blog.blog_data.content.split(/\s+/).length;
@@ -104,7 +110,6 @@ const { showAlert } = useAlertContext();
       const deleteResponse = await axios.delete(deleteBlogAPI);
 
       if (deleteResponse.status === 200) {
-      
         onBlogDelete(blog.blog_data.id);
 
         showAlert("Blog deleted successfully.", "success");
@@ -112,7 +117,6 @@ const { showAlert } = useAlertContext();
         onClose();
       }
     } catch (error) {
-    
       showAlert(
         error.response?.data?.message || "Could not delete blog.",
         "error"
@@ -141,16 +145,13 @@ const { showAlert } = useAlertContext();
   };
 
   return (
-    <div className="fixed z-40 flex justify-center p-2 sm:p-4 md:p-10 ">
-     
-      <div
+<div className="fixed z-40 flex items-start justify-center p-2 sm:p-4 md:p-10 inset-0 ">
+<div
         className="fixed inset-0 cursor-pointer bg-gradient-to-b from-transparent via-gray-900/60 to-transparent backdrop-blur-sm"
         onClick={onClose}
       ></div>
-      <div
-        ref={modalRef}
-        className="relative w-full max-w-4xl mx-auto bg-white/95 rounded-2xl shadow-2xl border border-gray-200 overflow-hidden"
-      >
+    <div ref={modalRef} className="relative w-full max-w-4xl mx-auto my-4 bg-white/95 rounded-2xl shadow-2xl border border-gray-200 overflow-hidden max-h-[calc(100vh-2rem)] flex flex-col">
+
         {/* Header */}
         <div className="bg-white/90 border-b border-gray-200 p-6">
           <div className="flex justify-between items-start">
