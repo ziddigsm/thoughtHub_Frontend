@@ -25,7 +25,6 @@ export function BlogModal({
 }) {
   const modalRef = useRef(null);
   const { showWarning } = useModal();
-  const [showFullHeader, setShowFullHeader] = useState(false);
 
   useEffect(() => {
     if (isOpen && modalRef.current) {
@@ -41,22 +40,6 @@ export function BlogModal({
       };
     }
   }, [isOpen]);
-
-  // Handle window resize to detect mobile view
-  useEffect(() => {
-    const handleResize = () => {
-      setShowFullHeader(window.innerWidth >= 640); // 640px is the 'sm' breakpoint
-    };
-    
-    // Set initial state
-    handleResize();
-    
-    // Add event listener
-    window.addEventListener('resize', handleResize);
-    
-    // Clean up
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   const userData = JSON.parse(localStorage.getItem("userData"));
   const userId = userData ? userData.user_id : null;
@@ -161,106 +144,78 @@ export function BlogModal({
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
-  // Function to toggle expanded header on mobile
-  const toggleHeaderExpansion = () => {
-    if (window.innerWidth < 640) {
-      setShowFullHeader(!showFullHeader);
-    }
-  };
-
   return (
-    <div
-      className="fixed z-50 w-full flex justify-center"
-      style={{
-        top: "100px", 
-        bottom: "0",
-        left: "0",
-        right: "0",
-        overflowY: "auto",
-      }}
-    >
+    <div className="fixed z-50 inset-0 flex items-center justify-center">
       <div
         className="fixed inset-0 cursor-pointer bg-gradient-to-b from-transparent via-gray-900/60 to-transparent backdrop-blur-sm"
         onClick={onClose}
-        style={{ top: "100px" }}
       ></div>
 
       <div
         ref={modalRef}
-        className="relative w-full max-w-4xl mx-2 sm:mx-4 my-2 sm:my-4 bg-white/95 rounded-xl sm:rounded-2xl shadow-2xl border border-gray-200 overflow-hidden flex flex-col"
-        style={{ maxHeight: "calc(100vh - 120px)" }} 
+        className="relative w-full mx-4 bg-white/95 rounded-2xl shadow-2xl border border-gray-200 overflow-hidden flex flex-col"
+        style={{
+          maxWidth: "calc(min(90vw, 68rem))",
+          maxHeight: "calc(min(90vh, 85vh))",
+          transform: "translateY(0)",
+        }}
       >
-        {/* Compact Header for Mobile */}
-        <div className="bg-white/90 border-b border-gray-200 p-2 sm:p-4 md:p-6">
+        {/* Header */}
+        <div className="bg-white/90 border-b border-gray-200 p-6">
           <div className="flex justify-between items-start">
-            <div className="flex-1">
-              {/* Title and minimal info */}
-              <div className="flex items-center justify-between">
-                <h1 
-                  className="text-lg sm:text-2xl md:text-3xl lg:text-4xl font-semibold text-gray-900 tracking-tight mb-0 sm:mb-2 truncate max-w-[80%] sm:max-w-full"
-                  onClick={toggleHeaderExpansion}
-                >
-                  {blog.blog_data.title}
-                </h1>
-                <button
-                  onClick={onClose}
-                  className="text-gray-500 hover:text-gray-900 transition-colors p-1 rounded-full sm:p-2"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
-              </div>
-              
-              {/* Mobile view - minimal info by default */}
-              <div className={`sm:flex items-center gap-1 sm:gap-2 md:space-x-4 text-gray-600 text-xs sm:text-sm md:text-base ${showFullHeader ? 'flex' : 'hidden sm:flex'}`}>
-                <div className="flex items-center space-x-1 sm:space-x-3 mt-1 sm:mt-0">
+            <div>
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-gray-900 tracking-tight mb-2">
+                {blog.blog_data.title}
+              </h1>
+              <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-4 text-gray-600">
+                {" "}
+                <div className="flex items-center space-x-3">
                   <img
                     src="https://via.placeholder.com/50"
                     alt="Author"
-                    className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full object-cover border border-gray-200"
+                    className="w-10 h-10 rounded-full object-cover border border-gray-200"
                   />
                   <div>
                     <span className="font-normal md:font-medium">
                       {blog.blog_data.name}
                     </span>
                     <div className="text-xs flex items-center text-gray-500">
-                      <FaCheckCircle className="text-green-500 mr-1 text-xs" />
-                      <span className="hidden sm:inline">Verified Author</span>
+                      <FaCheckCircle className="text-green-500 mr-1" />
+                      Verified Author
                     </div>
                   </div>
                 </div>
-                <span className="opacity-30 hidden sm:inline">•</span>
-                <div className="flex items-center space-x-1 sm:space-x-2">
-                  <FaClock className="text-gray-400 text-xs" />
-                  <span>{readTime} min</span>
+                <span className="opacity-30">•</span>
+                <div className="flex items-center space-x-2">
+                  <FaClock className="text-gray-400" />
+                  <span>{readTime} min read</span>
                 </div>
-                <span className="opacity-30 hidden sm:inline">•</span>
+                <span className="opacity-30">•</span>
                 <MdDelete
-                  className="text-thought-100 hover:text-hub-100 cursor-pointer size-5 sm:size-6 md:size-7"
+                  className="text-thought-100 hover:text-hub-100 cursor-pointer size-8 sm:size-7"
                   onClick={handleDeleteBlog}
                 />
               </div>
-              
-              {/* Mobile-only toggle indicator */}
-              <div 
-                className="sm:hidden mt-1 mb-0 flex justify-center cursor-pointer"
-                onClick={toggleHeaderExpansion}
-              >
-                <div className="h-1 w-10 bg-gray-300 rounded-full"></div>
-              </div>
             </div>
+            <button
+              onClick={onClose}
+              className="text-gray-500 hover:text-gray-900 transition-colors p-2 rounded-full"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
           </div>
         </div>
 
@@ -270,7 +225,7 @@ export function BlogModal({
             <div key={tab} className="group relative flex-1">
               <button
                 onClick={() => setActiveTab(tab)}
-                className={`w-full py-1 sm:py-2 md:py-4 text-center uppercase tracking-wide text-xs sm:text-sm font-medium sm:font-semibold transition-colors ${
+                className={`w-full py-4 text-center uppercase tracking-wide text-sm font-semibold transition-colors ${
                   activeTab === tab
                     ? "text-black border-b-2 border-black"
                     : "text-gray-500 hover:bg-gray-100"
@@ -285,7 +240,7 @@ export function BlogModal({
 
               {/* Hover Message for "comments" and "about" tabs */}
               {(tab === "comments" || tab === "about") && (
-                <div className="absolute hidden group-hover:block z-50 bg-thought-75 text-hub-100 text-xs p-2 rounded mt-2 top-full left-1/2 transform -translate-x-1/2 whitespace-nowrap">
+                <div className="absolute hidden group-hover:block z-50 bg-thought-75 text-hub-100 text-sm p-2 rounded mt-2 top-full left-1/2 transform -translate-x-1/2 whitespace-nowrap">
                   Coming soon
                 </div>
               )}
@@ -294,10 +249,10 @@ export function BlogModal({
         </div>
 
         {/* Content Area */}
-        <div className="p-3 sm:p-4 md:p-6 bg-white overflow-y-auto max-h-[calc(100vh-300px)]">
+        <div className="p-6 bg-white overflow-y-auto max-h-[calc(100vh-300px)]">
           {activeTab === "content" && (
             <div>
-              <div className="relative mb-4 sm:mb-6 md:mb-8 overflow-hidden rounded-lg sm:rounded-xl md:rounded-2xl shadow-lg">
+              <div className="relative mb-8 overflow-hidden rounded-2xl shadow-lg">
                 <img
                   src={
                     blog.blog_data.blog_image
@@ -305,25 +260,24 @@ export function BlogModal({
                       : "https://via.placeholder.com/800x400"
                   }
                   alt={blog.blog_data.title}
-                  className="w-full h-[200px] sm:h-[300px] md:h-[450px] object-cover"
+                  className="w-full h-[450px] object-cover"
                 />
               </div>
 
-              <article className="prose max-w-none text-gray-800 text-sm sm:text-base">
+              <article className="prose max-w-none text-gray-800">
                 <div
                   dangerouslySetInnerHTML={{ __html: blog.blog_data.content }}
                 />
               </article>
 
-              <div className="mt-4 sm:mt-6 md:mt-8 flex flex-wrap sm:flex-nowrap justify-between items-center gap-2 sm:gap-4">
-                <div className="flex space-x-3 sm:space-x-4 md:space-x-6 text-gray-600">
+              <div className="mt-8 flex justify-between items-center">
+                <div className="flex space-x-6 text-gray-600">
                   <button
                     href="#"
                     className="hover:text-blue-600 transition-all duration-200"
                   >
                     <FaFacebook
-                      size={20}
-                      className="sm:size-5 md:size-6"
+                      size={28}
                       onClick={() => handleSharing(socialUrls.facebook)}
                     />
                   </button>
@@ -332,8 +286,7 @@ export function BlogModal({
                     className="hover:text-black transition-all duration-200"
                   >
                     <FaXTwitter
-                      size={20}
-                      className="sm:size-5 md:size-6"
+                      size={28}
                       onClick={() => handleSharing(socialUrls.twitter)}
                     />
                   </button>
@@ -342,15 +295,13 @@ export function BlogModal({
                     className="hover:text-blue-700 transition-all duration-200"
                   >
                     <FaLinkedin
-                      size={20}
-                      className="sm:size-5 md:size-6"
+                      size={28}
                       onClick={() => handleSharing(socialUrls.linkedin)}
                     />
                   </button>
                   <button className="hover:text-thought-100 transition-all duration-200">
                     <FaCopy
-                      size={18}
-                      className="sm:size-4 md:size-5"
+                      size={24}
                       onClick={() => {
                         navigator.clipboard.writeText(window.location.href);
                         showAlert("Link copied to clipboard!", "info");
@@ -358,41 +309,41 @@ export function BlogModal({
                     />
                   </button>
                 </div>
-                <div className="flex items-center space-x-3 sm:space-x-4 text-gray-700">
-                  <div className="flex items-center space-x-1 sm:space-x-2">
-                    <FaHeart size={16} className="text-red-500" />
-                    <span className="text-sm">{blog.likes}</span>
+                <div className="flex items-center space-x-4 text-gray-700">
+                  <div className="flex items-center space-x-2">
+                    <FaHeart size={20} className="text-red-500" />
+                    <span>{blog.likes}</span>
                   </div>
-                  <div className="flex items-center space-x-1 sm:space-x-2">
-                    <FaComment size={16} className="text-blue-400" />
-                    <span className="text-sm">{blog.comments?.length || 0}</span>
+                  <div className="flex items-center space-x-2">
+                    <FaComment size={20} className="text-blue-400" />
+                    <span>{blog.comments?.length || 0}</span>
                   </div>
                 </div>
               </div>
 
               {/* QuickScribe Button */}
-              <div className="mt-4 sm:mt-6 md:mt-8 text-center">
+              <div className="mt-8 text-center">
                 <button
                   onClick={handleQuickScribe}
                   disabled={isLoading}
-                  className={`bg-gradient-to-r from-thought-100 to-hub-100 text-white py-2 px-4 sm:py-2 sm:px-5 md:py-3 md:px-6 rounded-full flex items-center justify-center mx-auto space-x-1 sm:space-x-2 hover:from-thought-100/90 hover:to-hub-100/90 transition-colors ${
+                  className={`bg-gradient-to-r from-thought-100 to-hub-100 text-white py-3 px-6 rounded-full flex items-center justify-center mx-auto space-x-2 hover:from-thought-100/90 hover:to-hub-100/90 transition-colors ${
                     isLoading ? "opacity-50 cursor-not-allowed" : ""
                   }`}
                 >
-                  <FaRobot size={14} className="sm:size-4 md:size-5" />
-                  <span className="text-xs sm:text-sm md:text-base">
-                    {isLoading ? "Generating..." : "QuickScribe"}
+                  <FaRobot size={20} />
+                  <span>
+                    {isLoading ? "Generating Summary..." : "QuickScribe"}
                   </span>
                 </button>
-                {error && <p className="mt-2 text-red-500 text-xs sm:text-sm">{error}</p>}
+                {error && <p className="mt-2 text-red-500">{error}</p>}
               </div>
             </div>
           )}
 
           {activeTab === "summary" && (
-            <div className="space-y-2 sm:space-y-3 md:space-y-4">
-              <h2 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3 md:mb-4">Article Summary</h2>
-              <div className="bg-gray-50 p-3 sm:p-4 md:p-6 rounded-lg prose max-w-none text-sm sm:text-base">
+            <div className="space-y-4">
+              <h2 className="text-2xl font-semibold mb-4">Article Summary</h2>
+              <div className="bg-gray-50 p-6 rounded-lg prose max-w-none">
                 {summary}
               </div>
             </div>
@@ -401,48 +352,48 @@ export function BlogModal({
           {activeTab === "comments" && (
             <div>
               {blog.comments && blog.comments.length > 0 ? (
-                <div className="space-y-2 sm:space-y-3 md:space-y-4">
+                <div className="space-y-4">
                   {blog.comments.map((comment, idx) => (
                     <div
                       key={idx}
-                      className="border-b border-gray-200 pb-2 sm:pb-3 md:pb-4 last:border-b-0"
+                      className="border-b border-gray-200 pb-4 last:border-b-0"
                     >
-                      <div className="flex items-center space-x-2 mb-1 sm:mb-2">
+                      <div className="flex items-center space-x-3 mb-2">
                         <img
                           src="https://via.placeholder.com/40"
                           alt="Commenter"
-                          className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 rounded-full border border-gray-200"
+                          className="w-8 h-8 rounded-full border border-gray-200"
                         />
                         <div>
-                          <span className="font-medium text-gray-900 text-xs sm:text-sm md:text-base">
+                          <span className="font-medium text-gray-900">
                             {comment.name}
                           </span>
-                          <div className="text-tiny sm:text-xs text-gray-500">
+                          <div className="text-xs text-gray-500">
                             {new Date().toLocaleDateString()}
                           </div>
                         </div>
                       </div>
-                      <p className="text-gray-700 text-xs sm:text-sm md:text-base">{comment.content}</p>
+                      <p className="text-gray-700">{comment.content}</p>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-4 sm:py-6 md:py-8 text-gray-500 text-sm">
+                <div className="text-center py-8 text-gray-500">
                   No comments yet. Be the first to comment!
                 </div>
               )}
 
-              <div className="mt-3 sm:mt-4 md:mt-6">
+              <div className="mt-6">
                 <textarea
-                  className="w-full p-2 sm:p-3 md:p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black/10 text-xs sm:text-sm md:text-base"
-                  rows="3"
+                  className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black/10"
+                  rows="4"
                   value={newComment}
                   onChange={handleCommentChange}
                   placeholder="Share your thoughts..."
                 ></textarea>
                 <button
                   onClick={handleCommentSubmit}
-                  className="mt-2 sm:mt-3 md:mt-4 w-full bg-black text-white py-2 rounded-lg hover:bg-gray-800 transition-colors text-xs sm:text-sm md:text-base"
+                  className="mt-4 w-full bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition-colors"
                 >
                   Post Comment
                 </button>
@@ -451,21 +402,21 @@ export function BlogModal({
           )}
 
           {activeTab === "about" && (
-            <div className="flex flex-col sm:flex-row items-center sm:space-x-4 md:space-x-6 lg:space-x-8 bg-gray-50 p-3 sm:p-4 md:p-6 rounded-lg sm:rounded-xl md:rounded-2xl">
+            <div className="flex items-center space-x-8 bg-gray-50 p-6 rounded-2xl">
               <img
                 src="https://via.placeholder.com/200"
                 alt="Author"
-                className="w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 lg:w-48 lg:h-48 rounded-full object-cover border border-gray-200 shadow-md mb-3 sm:mb-0"
+                className="w-48 h-48 rounded-full object-cover border border-gray-200 shadow-md"
               />
               <div>
-                <h3 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-semibold text-gray-900 mb-2 text-center sm:text-left">
+                <h3 className="text-3xl font-semibold text-gray-900 mb-2">
                   {blog.blog_data.name}
                 </h3>
-                <div className="flex flex-wrap justify-center sm:justify-start gap-1 sm:gap-2">
-                  <span className="bg-gray-200 text-gray-800 px-2 py-1 rounded-full text-xs sm:text-sm">
+                <div className="flex items-center space-x-3 mb-4">
+                  <span className="bg-gray-200 text-gray-800 px-3 py-1 rounded-full text-sm">
                     Expert Writer
                   </span>
-                  <span className="bg-gray-200 text-gray-800 px-2 py-1 rounded-full text-xs sm:text-sm">
+                  <span className="bg-gray-200 text-gray-800 px-3 py-1 rounded-full text-sm">
                     Technology Columnist
                   </span>
                 </div>
@@ -474,8 +425,8 @@ export function BlogModal({
           )}
         </div>
 
-        <div className="bg-gray-100 text-center py-2 sm:py-3 md:py-4 border-t border-gray-300">
-          <p className="text-xs text-gray-600">
+        <div className="bg-gray-100 text-center py-4 border-t border-gray-300">
+          <p className="text-sm text-gray-600">
             © {new Date().getFullYear()} by {blog.blog_data.name}
           </p>
         </div>
