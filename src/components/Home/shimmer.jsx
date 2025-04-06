@@ -17,9 +17,10 @@ export function Shimmer() {
       })}
     </>
   );
+ 
 }
 
-export function BlogCard({ index, isData, blog }) {
+export function BlogCard({ index, isData, blog, onBlogDelete }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleCardClick = () => {
@@ -108,6 +109,7 @@ export function BlogCard({ index, isData, blog }) {
           isOpen={isModalOpen}
           onClose={handleCloseModal}
           onAddComment={handleAddComment}
+          onBlogDelete={onBlogDelete}
         />
       )}
     </>
@@ -118,4 +120,5 @@ BlogCard.propTypes = {
   index: PropTypes.number.isRequired,
   isData: PropTypes.bool.isRequired,
   blog: PropTypes.object,
+  onBlogDelete: PropTypes.func,
 };
