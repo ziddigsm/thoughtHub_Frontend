@@ -7,7 +7,6 @@ import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { useAlertContext } from "../../contexts/alertContext";
 
-
 export function NewBlogModal({ isOpen, onClose }) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -15,6 +14,8 @@ export function NewBlogModal({ isOpen, onClose }) {
   const [imagePreview, setImagePreview] = useState(null);
   const [errors, setErrors] = useState({ title: "", content: "" });
   const { showAlert } = useAlertContext();
+
+  let apiKey = "VITE_API_KEY_" + new Date().getDay();
 
   const modules = {
     toolbar: [
@@ -123,6 +124,7 @@ export function NewBlogModal({ isOpen, onClose }) {
       let res = await axios.post(createBlogAPI, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
+          "X-API-KEY": import.meta.env[apiKey],
         },
       });
       if (res.status === 200) {
@@ -131,7 +133,7 @@ export function NewBlogModal({ isOpen, onClose }) {
           window.dispatchEvent(new Event("newBlogSuccess"));
         }, 500);
       }
-    } catch  {
+    } catch {
       showAlert("Failed to create blog. Please try again later.", "error");
     }
   };

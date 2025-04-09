@@ -31,6 +31,8 @@ export function Settings() {
   const [isFacebookUpdated, setIsFacebookUpdated] = useState(false);
   const [isTwitterUpdated, setIsTwitterUpdated] = useState(false);
 
+  let apiKey = "VITE_API_KEY_" + new Date().getDay();
+
   const handleLogout = useLogout().handleLogout;
   const { showAlert } = useAlertContext();
   const handleSettings = (setting) => {
@@ -145,7 +147,13 @@ export function Settings() {
 
       const response = await axios.post(
         import.meta.env.VITE_POST_SAVE_SOCIAL_GO_API,
-        socialRequestBody
+        socialRequestBody,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "X-API-Key": import.meta.env[apiKey],
+          },
+        }
       );
       if (response.status === 200) {
         setIsSocialUpdated(false);
@@ -160,7 +168,11 @@ export function Settings() {
         showAlert("Social media profiles updated successfully", "success");
       }
     } catch (error) {
-      showAlert(error.message || "Failed to update social media profiles. Please try again later.", "error");
+      showAlert(
+        error.message ||
+          "Failed to update social media profiles. Please try again later.",
+        "error"
+      );
     }
   };
 
