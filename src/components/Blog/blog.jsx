@@ -15,21 +15,30 @@ export function FetchBlogs({ isMyBlogs, searchQuery, isSearching }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { showAlert } = useAlertContext();
 
+  let apiKey = "VITE_API_KEY_" + new Date().getDay();
+
   const limit = 9;
 
   const getBlogData = async (pageNumber, query = "") => {
     const offset = (pageNumber - 1) * limit;
-    let userId = 0
+    let userId = 0;
+
     try {
-            if (isMyBlogs) {
-            userId = JSON.parse(localStorage.getItem("userData"))?.user_id;
-            }
+      if (isMyBlogs) {
+        userId = JSON.parse(localStorage.getItem("userData"))?.user_id;
+      }
       let response;
       if (query) {
         response = await axios.get(
           `${import.meta.env.VITE_SEARCH_BLOGS_API}?q=${encodeURIComponent(
             query
-          )}&limit=${limit}&offset=${offset}&user_id=${userId}`
+          )}&limit=${limit}&offset=${offset}&user_id=${userId}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              "X-API-Key": import.meta.env[apiKey],
+            },
+          }
         );
       } else {
         const userId = isMyBlogs
@@ -38,7 +47,13 @@ export function FetchBlogs({ isMyBlogs, searchQuery, isSearching }) {
         response = await axios.get(
           `${
             import.meta.env.VITE_GET_BLOG_DATA_GO_API + parseInt(userId)
-          }&limit=${limit}&offset=${offset}`
+          }&limit=${limit}&offset=${offset}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              "X-API-Key": import.meta.env[apiKey],
+            },
+          }
         );
       }
       return response.data;
@@ -108,7 +123,9 @@ export function FetchBlogs({ isMyBlogs, searchQuery, isSearching }) {
     setIsModalOpen(false);
   };
   const handleBlogDelete = (deletedBlogId) => {
-    setBlogs(prevBlogs => prevBlogs.filter(blog => blog.blog_data.id !== deletedBlogId));
+    setBlogs((prevBlogs) =>
+      prevBlogs.filter((blog) => blog.blog_data.id !== deletedBlogId)
+    );
   };
 
   return (

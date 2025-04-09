@@ -25,11 +25,23 @@ function Login() {
 
   const fetchBlogs = async () => {
     const blogId = 0;
+    let apiKey = "VITE_API_KEY_" + new Date().getDay();
+
     setIsLoading(true);
     setError(null);
     try {
       const blogRequest = axios.get(
-        `${import.meta.env.VITE_GET_BLOG_DATA_GO_API + parseInt(blogId) + limitOffsetForLoginPage}`
+        `${
+          import.meta.env.VITE_GET_BLOG_DATA_GO_API +
+          parseInt(blogId) +
+          limitOffsetForLoginPage
+        }`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "X-API-Key": import.meta.env[apiKey],
+          },
+        }
       );
       const responses = await Promise.all([blogRequest]);
 
@@ -37,7 +49,7 @@ function Login() {
       const blogs = responses
         .map((response) => response.data?.blogs)
         .flat()
-        .filter(post => post && post.blog_data && post.blog_data.id); 
+        .filter((post) => post && post.blog_data && post.blog_data.id);
 
       if (blogs.length === 0) {
         setError("No blog posts found");
@@ -86,8 +98,8 @@ function Login() {
 
       const filtered = blogPosts.filter((post) => {
         if (!post?.blog_data) return false;
-        const title = post.blog_data.title?.toLowerCase() || '';
-        const content = post.blog_data.content?.toLowerCase() || '';
+        const title = post.blog_data.title?.toLowerCase() || "";
+        const content = post.blog_data.content?.toLowerCase() || "";
         return title.includes(query) || content.includes(query);
       });
 
@@ -122,11 +134,11 @@ function Login() {
           {post.blog_data.blog_image && (
             <img
               src={`data:image/png;base64,${post.blog_data.blog_image}`}
-              alt={post.blog_data.title || 'Blog post image'}
+              alt={post.blog_data.title || "Blog post image"}
               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               onError={(e) => {
-                e.target.src = 'image.jpg'; // fallback image path
-                e.target.alt = 'Failed to load image';
+                e.target.src = "image.jpg"; // fallback image path
+                e.target.alt = "Failed to load image";
               }}
             />
           )}
@@ -134,10 +146,10 @@ function Login() {
         <div className="p-6 bg-white relative">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-thought-100 to-hub-100 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
           <h2 className="text-2xl font-semibold mb-3 line-clamp-1">
-            {post.blog_data.title || 'Untitled'}
+            {post.blog_data.title || "Untitled"}
           </h2>
           <p className="text-gray-600 line-clamp-3 mb-4">
-            {stripHtml(post.blog_data.content) || 'No content available'}
+            {stripHtml(post.blog_data.content) || "No content available"}
           </p>
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4 text-sm text-gray-500">
@@ -178,7 +190,11 @@ function Login() {
         />
       </div>
 
-      <div className={`${isModalOpen ? "blur-sm" : ""} transition-all duration-300 relative z-10`}>
+      <div
+        className={`${
+          isModalOpen ? "blur-sm" : ""
+        } transition-all duration-300 relative z-10`}
+      >
         <nav className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-lg z-40 transition-all duration-300">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">

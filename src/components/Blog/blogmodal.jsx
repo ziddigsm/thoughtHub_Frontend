@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
+import { useNavigate } from "react-router-dom";
 import {
   FaComment,
   FaClock,
@@ -25,16 +26,24 @@ export function BlogModal({
 }) {
   const modalRef = useRef(null);
   const { showWarning } = useModal();
+  const navigate = useNavigate();
+
+  let apiKey = "VITE_API_KEY_" + new Date().getDay();
+
+  useEffect(() => {
+    if (isOpen && blog?.blog_data?.id) {
+      navigate(`/home?blog_id=${blog.blog_data.id}`, { replace: true });
+    } else if (!isOpen) {
+      navigate("/home", { replace: true });
+    }
+  }, [isOpen, blog?.blog_data?.id, navigate]);
 
   useEffect(() => {
     if (isOpen && modalRef.current) {
-      // Scroll the modal into view when it opens
       modalRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
 
-      // Lock the body scroll when modal is open
       document.body.style.overflow = "hidden";
 
-      // Cleanup function to restore scrolling when modal closes
       return () => {
         document.body.style.overflow = "auto";
       };
@@ -107,7 +116,12 @@ export function BlogModal({
       const deleteBlogAPI = `${import.meta.env.VITE_DELETE_BLOG_GO_API}${
         blog.blog_data.id
       }&userId=${userId}`;
-      const deleteResponse = await axios.delete(deleteBlogAPI);
+      const deleteResponse = await axios.delete(deleteBlogAPI, {
+        headers: {
+          "Content-Type": "application/json",
+          "X-API-Key": import.meta.env[apiKey],
+        },
+      });
 
       if (deleteResponse.status === 200) {
         onBlogDelete(blog.blog_data.id);
@@ -122,6 +136,11 @@ export function BlogModal({
         "error"
       );
     }
+  };
+
+  const handleClose = () => {
+    navigate("/home", { replace: true });
+    onClose();
   };
 
   const tabs = [
@@ -148,7 +167,7 @@ export function BlogModal({
     <div className="fixed z-50 inset-0 flex items-center justify-center">
       <div
         className="fixed inset-0 cursor-pointer bg-gradient-to-b from-transparent via-gray-900/60 to-transparent backdrop-blur-sm"
-        onClick={onClose}
+        onClick={handleClose}
       ></div>
 
       <div
@@ -198,7 +217,7 @@ export function BlogModal({
               </div>
             </div>
             <button
-              onClick={onClose}
+              onClick={handleClose}
               className="text-gray-500 hover:text-gray-900 transition-colors p-2 rounded-full"
             >
               <svg
