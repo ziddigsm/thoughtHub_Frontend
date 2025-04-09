@@ -202,7 +202,7 @@ function Login() {
                 className="text-4xl font-bold relative"
                 style={{ textShadow: "4px 9px 10px rgba(0, 0, 0, 0.2)" }}
               >
-                <span className="text-[#198b91] lowercase">thought</span>
+                <span className="text-[#198b91] capitalize">Thought</span>
                 <span className="text-[#2b3759] capitalize">Hub</span>
                 <div className="absolute -bottom-1 left-0 w-full h-1 bg-gradient-to-r from-thought-100 to-hub-100 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
               </div>
