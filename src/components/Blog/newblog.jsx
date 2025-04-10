@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { GrClose } from "react-icons/gr";
 import PropTypes from "prop-types";
 import Compressor from "compressorjs";
@@ -14,6 +14,8 @@ export function NewBlogModal({ isOpen, onClose }) {
   const [imagePreview, setImagePreview] = useState(null);
   const [errors, setErrors] = useState({ title: "", content: "" });
   const { showAlert } = useAlertContext();
+  const [isPublishing, setIsPublishing] = useState(false);
+  const imageInputRef = useRef(null);
 
   let apiKey = "VITE_API_KEY_" + new Date().getDay();
 
@@ -52,12 +54,18 @@ export function NewBlogModal({ isOpen, onClose }) {
   const handleImageChange = (e) => {
     if (e.target.files[0].size > 5 * 1000 * 1024) {
       showAlert("File size should be less than 5MB", "warning");
-      e.target.value = null;
-      setImage(null);
-      setImagePreview(null);
+      resetImageInput();
       return;
     }
     compressImage(e.target.files[0]);
+  };
+
+  const resetImageInput = () => {
+    if (imageInputRef.current) {
+      imageInputRef.current.value = null;
+    }
+    setImage(null);
+    setImagePreview(null);
   };
 
   const compressImage = (file) => {
@@ -69,7 +77,11 @@ export function NewBlogModal({ isOpen, onClose }) {
       },
       error(err) {
         console.error("Compression error:", err.message);
-        showAlert("We ran into a trouble. Please try again later.", "error");
+        resetImageInput();
+        showAlert(
+          "We ran into a trouble. Please try again later with PNG, JPEG or JPG image format.",
+          "error"
+        );
         setImage(null);
         setImagePreview(null);
       },
@@ -108,9 +120,12 @@ export function NewBlogModal({ isOpen, onClose }) {
     if (!validateFields()) {
       return;
     }
+    setIsPublishing(true);
     try {
       if (image === null) {
-        throw new Error("Please upload an image");
+        showAlert("Please upload an image", "warning");
+        setIsPublishing(false);
+        return;
       }
       const formData = new FormData();
       formData.append("title", title);
@@ -135,7 +150,9 @@ export function NewBlogModal({ isOpen, onClose }) {
       }
     } catch {
       showAlert("Failed to create blog. Please try again later.", "error");
+      setIsPublishing(false);
     }
+    setIsPublishing(false);
   };
 
   if (!isOpen) return null;
@@ -168,6 +185,7 @@ export function NewBlogModal({ isOpen, onClose }) {
               <span className="text-gray-500">Click to upload an image</span>
             )}
             <input
+              ref={imageInputRef}
               type="file"
               accept="image/*"
               onChange={handleImageChange}
@@ -221,9 +239,12 @@ export function NewBlogModal({ isOpen, onClose }) {
           </button>
           <button
             onClick={handlePublishBlog}
-            className="bg-thought-100 text-white px-6 py-3 rounded-lg hover:bg-hub-100 transition-all duration-200 flex-grow sm:flex-grow-0"
+            disabled={isPublishing}
+            className={`bg-thought-100 text-white px-6 py-3 rounded-lg hover:bg-hub-100 transition-all duration-200 flex-grow sm:flex-grow-0 ${
+              isPublishing ? "opacity-50 cursor-not-allowed" : ""
+            }`}
           >
-            Publish
+            {isPublishing ? "Publishing..." : "Publish"}
           </button>
         </div>
       </div>
