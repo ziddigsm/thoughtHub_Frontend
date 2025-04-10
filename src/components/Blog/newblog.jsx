@@ -82,8 +82,6 @@ export function NewBlogModal({ isOpen, onClose }) {
           "We ran into a trouble. Please try again later with PNG, JPEG or JPG image format.",
           "error"
         );
-        setImage(null);
-        setImagePreview(null);
       },
     });
     return;
@@ -152,7 +150,7 @@ export function NewBlogModal({ isOpen, onClose }) {
       showAlert("Failed to create blog. Please try again later.", "error");
       setIsPublishing(false);
     }
-    setIsPublishing(false);
+
   };
 
   if (!isOpen) return null;
