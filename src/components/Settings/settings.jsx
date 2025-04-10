@@ -89,7 +89,12 @@ export function Settings() {
       aboutRequestBody.username = userDetails.username;
     }
     await axios
-      .post(import.meta.env.VITE_POST_SAVE_ABOUT_GO_API, aboutRequestBody)
+      .post(import.meta.env.VITE_POST_SAVE_ABOUT_GO_API, aboutRequestBody, {
+        headers: {
+          "Content-Type": "application/json",
+          "X-API-KEY": import.meta.env[apiKey],
+        },
+      })
       .then((res) => {
         if (res.status === 200) {
           setIsAboutUpdated(false);
@@ -98,6 +103,12 @@ export function Settings() {
           localStorage.setItem("userData", JSON.stringify(userData));
           showAlert("User Information updated successfully", "success");
         }
+      })
+      .catch(() => {
+        showAlert(
+          "Failed to update user information. Please try again later.",
+          "error"
+        );
       });
   };
 
