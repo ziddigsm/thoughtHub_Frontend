@@ -227,9 +227,9 @@ export function BlogModal({
                   <>
                     <span className="opacity-30">•</span>
                     <MdOutlineModeEdit
-                      disabled={true}
                       className={`text-hub-100 size-8 sm:size-7 cursor-pointer hover:text-thought-100 `}
                       onClick={handleEditBlog}
+                      title="Edit blog"
                     />
                   </>
                 )}
