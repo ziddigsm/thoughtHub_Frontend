@@ -92,9 +92,12 @@ export function FetchBlogs({ isMyBlogs, searchQuery, isSearching }) {
 
     const handleBlogCreated = () => getBlogs(page, searchQuery);
     window.addEventListener("newBlogSuccess", handleBlogCreated);
+    window.addEventListener("editBlogSuccess", handleBlogCreated);
 
-    return () =>
+    return () => {
       window.removeEventListener("newBlogSuccess", handleBlogCreated);
+      window.removeEventListener("editBlogSuccess", handleBlogCreated);
+    };
   }, [isMyBlogs]);
 
   const handleNextPage = () => {
