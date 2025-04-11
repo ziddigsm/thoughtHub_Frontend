@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { GrClose } from "react-icons/gr";
 import PropTypes from "prop-types";
 import Compressor from "compressorjs";
@@ -7,7 +7,7 @@ import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { useAlertContext } from "../../contexts/alertContext";
 
-export function NewBlogModal({ isOpen, onClose }) {
+export function NewBlogModal({ isOpen, onClose, isEditing = false, blog }) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [image, setImage] = useState(null);
@@ -18,6 +18,14 @@ export function NewBlogModal({ isOpen, onClose }) {
   const imageInputRef = useRef(null);
 
   let apiKey = "VITE_API_KEY_" + new Date().getDay();
+
+  useEffect(() => {
+    if (isEditing) {
+      setTitle(blog.blog_data.title || "");
+      setContent(blog.blog_data.content || "");
+      setImagePreview(`data:image/png;base64,${blog.blog_data.blog_image}`);
+    }
+  }, [isEditing, blog]);
 
   const modules = {
     toolbar: [
@@ -52,7 +60,7 @@ export function NewBlogModal({ isOpen, onClose }) {
   ];
 
   const handleImageChange = (e) => {
-    if (e.target.files[0].size > 5 * 1000 * 1024) {
+    if (e.target.files[0].size > 5 * 1024 * 1024) {
       showAlert("File size should be less than 5MB", "warning");
       resetImageInput();
       return;
@@ -120,7 +128,7 @@ export function NewBlogModal({ isOpen, onClose }) {
     }
     setIsPublishing(true);
     try {
-      if (image === null) {
+      if (!isEditing && image === null) {
         showAlert("Please upload an image", "warning");
         setIsPublishing(false);
         return;
@@ -128,29 +136,53 @@ export function NewBlogModal({ isOpen, onClose }) {
       const formData = new FormData();
       formData.append("title", title);
       formData.append("content", content);
-      formData.append("blog_image", image);
-      formData.append(
-        "user_id",
-        JSON.parse(localStorage.getItem("userData")).user_id
-      );
-      const createBlogAPI = import.meta.env.VITE_CREATE_BLOG_GO_API;
-      let res = await axios.post(createBlogAPI, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          "X-API-KEY": import.meta.env[apiKey],
-        },
-      });
-      if (res.status === 200) {
-        onClose();
-        setTimeout(() => {
-          window.dispatchEvent(new Event("newBlogSuccess"));
-        }, 500);
+      if (image) {
+        formData.append("blog_image", image);
+      }
+      if (!isEditing) {
+        formData.append(
+          "user_id",
+          JSON.parse(localStorage.getItem("userData")).user_id
+        );
+      }
+      if (isEditing) {
+        formData.append("blog_id", blog?.blog_data?.id);
+        formData.append("user_id", blog?.blog_data.user_id);
+        const updateBlogAPI = import.meta.env.VITE_UPDATE_BLOG_GO_API;
+        let res = await axios.put(updateBlogAPI, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            "X-API-KEY": import.meta.env[apiKey],
+          },
+        });
+        if (res.status === 200) {
+          showAlert("Blog updated successfully", "success");
+          onClose();
+          setTimeout(() => {
+            window.dispatchEvent(new Event("editBlogSuccess"));
+          }, 500);
+        } else {
+          showAlert("Failed to update blog. Please try again later.", "error");
+        }
+      } else {
+        const createBlogAPI = import.meta.env.VITE_CREATE_BLOG_GO_API;
+        let res = await axios.post(createBlogAPI, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            "X-API-KEY": import.meta.env[apiKey],
+          },
+        });
+        if (res.status === 200) {
+          onClose();
+          setTimeout(() => {
+            window.dispatchEvent(new Event("newBlogSuccess"));
+          }, 500);
+        }
       }
     } catch {
       showAlert("Failed to create blog. Please try again later.", "error");
       setIsPublishing(false);
     }
-
   };
 
   if (!isOpen) return null;
@@ -242,7 +274,7 @@ export function NewBlogModal({ isOpen, onClose }) {
               isPublishing ? "opacity-50 cursor-not-allowed" : ""
             }`}
           >
-            {isPublishing ? "Publishing..." : "Publish"}
+            {isEditing ? "Update" : isPublishing ? "Publishing..." : "Publish"}
           </button>
         </div>
       </div>
@@ -253,4 +285,14 @@ export function NewBlogModal({ isOpen, onClose }) {
 NewBlogModal.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
+  isEditing: PropTypes.bool,
+  blog: PropTypes.shape({
+    blog_data: PropTypes.shape({
+      title: PropTypes.string,
+      content: PropTypes.string,
+      blog_image: PropTypes.string,
+      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      user_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    }),
+  }),
 };

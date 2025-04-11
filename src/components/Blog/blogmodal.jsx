@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import {
   FaComment,
   FaClock,
-  FaCheckCircle,
   FaHeart,
   FaFacebook,
   FaLinkedin,
@@ -12,10 +11,12 @@ import {
   FaRobot,
 } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
-import { MdDelete } from "react-icons/md";
+import { MdDelete, MdOutlineModeEdit } from "react-icons/md";
 import axios from "axios";
 import { useAlertContext } from "../../contexts/alertContext";
 import { useModal } from "../../contexts/warningContext";
+
+import { NewBlogModal } from "./newblog";
 
 export function BlogModal({
   blog,
@@ -27,6 +28,7 @@ export function BlogModal({
   const modalRef = useRef(null);
   const { showWarning } = useModal();
   const navigate = useNavigate();
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   let apiKey = "VITE_API_KEY_" + new Date().getDay();
 
@@ -163,13 +165,24 @@ export function BlogModal({
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
+  const handleEditBlog = () => {
+    setIsEditModalOpen(true);
+  };
+
   return (
     <div className="fixed z-50 inset-0 flex items-center justify-center">
       <div
         className="fixed inset-0 cursor-pointer bg-gradient-to-b from-transparent via-gray-900/60 to-transparent backdrop-blur-sm"
         onClick={handleClose}
       ></div>
-
+      {isEditModalOpen && (
+        <NewBlogModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          isEditing={true}
+          blog={blog}
+        />
+      )}
       <div
         ref={modalRef}
         className="relative w-full mx-4 bg-white/95 rounded-2xl shadow-2xl border border-gray-200 overflow-hidden flex flex-col"
@@ -180,9 +193,9 @@ export function BlogModal({
         }}
       >
         {/* Header */}
-        <div className="bg-white/90 border-b border-gray-200 p-6">
+        <div className="bg-white/90 border-b border-gray-200 p-2">
           <div className="flex justify-between items-start">
-            <div>
+            <div className="flex flex-col">
               <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-gray-900 tracking-tight mb-2">
                 {blog.blog_data.title}
               </h1>
@@ -195,13 +208,14 @@ export function BlogModal({
                     className="w-10 h-10 rounded-full object-cover border border-gray-200"
                   />
                   <div>
-                    <span className="font-normal md:font-medium">
+                    <span className="font-normal text-xs md:font-medium">
                       {blog.blog_data.name}
                     </span>
-                    <div className="text-xs flex items-center text-gray-500">
+                    {/*Commented the below code temporarily as verification is not implemented yet.*/}
+                    {/* <div className="text-xs flex items-center text-gray-500">
                       <FaCheckCircle className="text-green-500 mr-1" />
                       Verified Author
-                    </div>
+                    </div> */}
                   </div>
                 </div>
                 <span className="opacity-30">•</span>
@@ -209,16 +223,26 @@ export function BlogModal({
                   <FaClock className="text-gray-400" />
                   <span>{readTime} min read</span>
                 </div>
+                {userId === blog.blog_data.user_id && (
+                  <>
+                    <span className="opacity-30">•</span>
+                    <MdOutlineModeEdit
+                      disabled={true}
+                      className={`text-hub-100 size-8 sm:size-7 cursor-pointer hover:text-thought-100 `}
+                      onClick={handleEditBlog}
+                    />
+                  </>
+                )}
                 <span className="opacity-30">•</span>
                 <MdDelete
-                  className="text-thought-100 hover:text-hub-100 cursor-pointer size-8 sm:size-7"
+                  className="text-hub-100 hover:text-thought-100 cursor-pointer size-8 sm:size-7"
                   onClick={handleDeleteBlog}
                 />
               </div>
             </div>
             <button
               onClick={handleClose}
-              className="text-gray-500 hover:text-gray-900 transition-colors p-2 rounded-full"
+              className="text-gray-500 hover:text-gray-900 transition-colors rounded-full p-2"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -285,7 +309,9 @@ export function BlogModal({
 
               <article className="prose max-w-none text-gray-800">
                 <div
-                  dangerouslySetInnerHTML={{ __html: blog.blog_data.content }}
+                  dangerouslySetInnerHTML={{
+                    __html: blog.blog_data.content,
+                  }}
                 />
               </article>
 
@@ -462,6 +488,7 @@ BlogModal.propTypes = {
       name: PropTypes.string.isRequired,
       content: PropTypes.string.isRequired,
       blog_image: PropTypes.string,
+      user_id: PropTypes.string.isRequired,
     }).isRequired,
     likes: PropTypes.number,
     comments: PropTypes.array,
