@@ -12,6 +12,7 @@ import {
 } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import { MdDelete, MdOutlineModeEdit } from "react-icons/md";
+import { RiArrowDropLeftFill, RiArrowDropRightFill } from "react-icons/ri";
 import axios from "axios";
 import { useAlertContext } from "../../contexts/alertContext";
 import { useModal } from "../../contexts/warningContext";
@@ -29,6 +30,7 @@ export function BlogModal({
   const { showWarning } = useModal();
   const navigate = useNavigate();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const recommendedBlogs = [blog, blog, blog];
 
   let apiKey = "VITE_API_KEY_" + new Date().getDay();
 
@@ -61,6 +63,8 @@ export function BlogModal({
   const [summary, setSummary] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [currentRecommendedBlogIndex, setCurrentRecommendedBlogIndex] =
+    useState(0);
   const { showAlert } = useAlertContext();
 
   useEffect(() => {
@@ -167,6 +171,18 @@ export function BlogModal({
 
   const handleEditBlog = () => {
     setIsEditModalOpen(true);
+  };
+
+  const handleNextBlog = () => {
+    setCurrentRecommendedBlogIndex((index) =>
+      index === recommendedBlogs.length - 1 ? 0 : index + 1
+    );
+  };
+
+  const handlePrevBlog = () => {
+    setCurrentRecommendedBlogIndex((index) =>
+      index === 0 ? recommendedBlogs.length - 1 : index - 1
+    );
   };
 
   return (
@@ -469,13 +485,79 @@ export function BlogModal({
             </div>
           )}
         </div>
+        {/*Blog Recommendation Row */}
+        <div>
+          <h6 className="text-xl font-extralight italic text-gray-900 bg-gray-50 p-2 border-t border-gray-200">
+            Recommended Blogs
+          </h6>
 
-        <div className="bg-gray-100 text-center py-4 border-t border-gray-300">
-          <p className="text-sm text-gray-600">
-            © {new Date().getFullYear()} by {blog.blog_data.name}
-          </p>
+          <div className="relative bg-gray-50 border-t border-gray-200">
+            <div
+              className="absolute left-0 top-0 h-[160px] w-[60px] flex items-center justify-center bg-gradient-to-r from-thought-75 to-transparent hover:bg-thought-100/20 cursor-pointer z-10 transition-colors duration-300"
+              onClick={handlePrevBlog}
+            >
+              <RiArrowDropLeftFill className="text-thought-100 size-8 sm:size-7 hover:text-hub-100" />
+            </div>
+
+            <div className="flex justify-center overflow-hidden h-[160px]">
+              <div
+                className="flex transition-transform duration-500 ease-in-out"
+                style={{
+                  transform: `translateX(-${
+                    currentRecommendedBlogIndex * 100
+                  }%)`,
+                }}
+              >
+                {recommendedBlogs.map((blogItem, index) => (
+                  <div
+                    key={index}
+                    className="flex-shrink-0 w-full flex justify-center items-center px-0"
+                  >
+                    <ModernBlogCard blog={blogItem} />
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div
+              className="absolute right-0 top-0 h-[160px] w-[60px] flex items-center justify-center bg-gradient-to-l from-thought-75 to-transparent hover:bg-thought-100/20 cursor-pointer z-10 transition-colors duration-300"
+              onClick={handleNextBlog}
+            >
+              <RiArrowDropRightFill className="text-thought-100 size-8 sm:size-7 hover:text-hub-100" />
+            </div>
+          </div>
+
+          <div className="bg-gray-100 text-center py-4 border-t border-gray-300">
+            <p className="text-sm text-gray-600">
+              © {new Date().getFullYear()} by {blog.blog_data.name}
+            </p>
+          </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+function ModernBlogCard({ key, blog }) {
+  return (
+    <div className="flex flex-row items-center justify-between bg-thought-50 border border-gray-200 rounded-lg shadow-md p-4 m-2">
+      <div className="flex flex-col">
+        <h2 className="text-lg font-semibold text-gray-900">
+          {blog.blog_data.title}
+        </h2>
+        <p className="text-sm text-gray-600">{blog.blog_data.name}</p>
+        <p className="text-xs text-gray-500">
+          {blog.blog_data.content.slice(0, 100)}...
+        </p>
+      </div>
+      <img
+        src={
+          blog.blog_data.blog_image
+            ? `data:image/png;base64,${blog.blog_data.blog_image}`
+            : "https://via.placeholder.com/150"
+        }
+        alt={blog.blog_data.title}
+        className="w-16 h-16 rounded-lg object-cover"
+      />
     </div>
   );
 }
