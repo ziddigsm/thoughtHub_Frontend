@@ -19,6 +19,87 @@ import { useModal } from "../../contexts/warningContext";
 
 import { NewBlogModal } from "./newblog";
 
+// Helper components moved outside BlogModal
+function ProgressBar({ totalChunks, activeChunk }) {
+  return (
+    <div className="flex justify-center space-x-2 mt-4">
+      {[...Array(totalChunks)].map((_, index) => (
+        <div
+          key={index}
+          className={`h-1 rounded-full transition-all duration-300 ${
+            index === activeChunk 
+              ? 'w-12 bg-gradient-to-r from-thought-100 to-hub-100' 
+              : 'w-8 bg-gray-200'
+          }`}
+        ></div>
+      ))}
+    </div>
+  );
+}
+
+
+function ModernBlogCard({ blog }) {
+  return (
+    <div className="w-[800px] h-[160px] mx-4 bg-white hover:bg-gray-50 transition-all duration-300 border border-gray-200 rounded-xl shadow-sm hover:shadow-md overflow-hidden">
+      <div className="flex h-full">
+        {/* Image Section */}
+        <div className="w-[200px] h-full flex-shrink-0">
+          <img
+            src={
+              blog.blog_data.blog_image
+                ? `data:image/png;base64,${blog.blog_data.blog_image}`
+                : "https://via.placeholder.com/200"
+            }
+            alt={blog.blog_data.title}
+            className="w-full h-full object-cover"
+          />
+        </div>
+
+        {/* Content Section */}
+        <div className="flex-1 p-4 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center space-x-2 mb-2">
+              <img
+                src="https://via.placeholder.com/30"
+                alt="Author"
+                className="w-6 h-6 rounded-full"
+              />
+              <span className="text-sm text-gray-600">
+                {blog.blog_data.name}
+              </span>
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-1">
+              {blog.blog_data.title}
+            </h3>
+            <p className="text-sm text-gray-600 line-clamp-2">
+              {blog.blog_data.content}
+            </p>
+          </div>
+
+          {/* Footer Section */}
+          <div className="flex items-center justify-between mt-2 text-sm text-gray-500">
+            <div className="flex items-center space-x-4">
+              <span className="flex items-center">
+                <FaHeart className="text-red-400 mr-1" size={14} />
+                {blog.likes || 0}
+              </span>
+              <span className="flex items-center">
+                <FaComment className="text-blue-400 mr-1" size={14} />
+                {blog.comments?.length || 0}
+              </span>
+            </div>
+            <span className="flex items-center">
+              <FaClock className="mr-1" size={14} />
+              {Math.ceil(blog.blog_data.content.split(/\s+/).length / 225)} min
+              read
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function BlogModal({
   blog,
   isOpen,
@@ -26,13 +107,45 @@ export function BlogModal({
   onAddComment,
   onBlogDelete,
 }) {
-  const modalRef = useRef(null);
-  const { showWarning } = useModal();
-  const navigate = useNavigate();
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const recommendedBlogs = [blog, blog, blog];
 
+  const SLIDE_INTERVAL = 5000; 
   let apiKey = "VITE_API_KEY_" + new Date().getDay();
+  const userData = JSON.parse(localStorage.getItem("userData"));
+  const userId = userData ? userData.user_id : null;
+
+  const modalRef = useRef(null);
+  const navigate = useNavigate();
+  const { showWarning } = useModal();
+  const { showAlert } = useAlertContext();
+
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [newComment, setNewComment] = useState("");
+  const [activeTab, setActiveTab] = useState("content");
+  const [readTime, setReadTime] = useState(0);
+  const [summary, setSummary] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [currentRecommendedBlogIndex, setCurrentRecommendedBlogIndex] = useState(0);
+  const [autoSlideEnabled, setAutoSlideEnabled] = useState(true);
+
+
+  const recommendedBlogs = [blog, blog, blog];
+  const tabs = [
+    "content",
+    "comments",
+    "about",
+    ...(summary ? ["summary"] : []),
+  ];
+  
+  const encodedUrl = encodeURIComponent(window.location.href);
+  const encodedText = encodeURIComponent(
+    `${blog.blog_data.title} - Check out this blog!`
+  );
+  const socialUrls = {
+    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
+    twitter: `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`,
+    linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,
+  };
 
   useEffect(() => {
     if (isOpen && blog?.blog_data?.id) {
@@ -54,26 +167,30 @@ export function BlogModal({
     }
   }, [isOpen]);
 
-  const userData = JSON.parse(localStorage.getItem("userData"));
-  const userId = userData ? userData.user_id : null;
-
-  const [newComment, setNewComment] = useState("");
-  const [activeTab, setActiveTab] = useState("content");
-  const [readTime, setReadTime] = useState(0);
-  const [summary, setSummary] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [currentRecommendedBlogIndex, setCurrentRecommendedBlogIndex] =
-    useState(0);
-  const { showAlert } = useAlertContext();
-
   useEffect(() => {
     const wordCount = blog.blog_data.content.split(/\s+/).length;
     setReadTime(Math.ceil(wordCount / 225));
   }, [blog.blog_data.content]);
 
-  if (!isOpen) return null;
+  useEffect(() => {
+    let slideTimer;
 
+    if (autoSlideEnabled && isOpen) {
+      slideTimer = setInterval(() => {
+        setCurrentRecommendedBlogIndex((current) =>
+          current === recommendedBlogs.length - 1 ? 0 : current + 1
+        );
+      }, SLIDE_INTERVAL);
+    }
+
+    return () => {
+      if (slideTimer) {
+        clearInterval(slideTimer);
+      }
+    };
+  }, [autoSlideEnabled, isOpen, recommendedBlogs.length]);
+
+  // Event handlers
   const handleCommentChange = (e) => {
     setNewComment(e.target.value);
   };
@@ -149,26 +266,6 @@ export function BlogModal({
     onClose();
   };
 
-  const tabs = [
-    "content",
-    "comments",
-    "about",
-    ...(summary ? ["summary"] : []),
-  ];
-
-  const encodedUrl = encodeURIComponent(window.location.href);
-  const encodedText = encodeURIComponent(
-    `${blog.blog_data.title} - Check out this blog!`
-  );
-  const socialUrls = {
-    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
-    twitter: `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`,
-    linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,
-  };
-  const handleSharing = (url) => {
-    window.open(url, "_blank", "noopener,noreferrer");
-  };
-
   const handleEditBlog = () => {
     setIsEditModalOpen(true);
   };
@@ -184,6 +281,13 @@ export function BlogModal({
       index === 0 ? recommendedBlogs.length - 1 : index - 1
     );
   };
+
+  const handleSharing = (url) => {
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
+
+  if (!isOpen || !blog || !blog.blog_data) return null;
+
 
   return (
     <div className="fixed z-50 inset-0 flex items-center justify-center">
@@ -381,7 +485,7 @@ export function BlogModal({
                   </div>
                 </div>
               </div>
-
+              
               {/* QuickScribe Button */}
               <div className="mt-8 text-center">
                 <button
@@ -397,6 +501,72 @@ export function BlogModal({
                   </span>
                 </button>
                 {error && <p className="mt-2 text-red-500">{error}</p>}
+              </div>
+              {/*Blog Recommendation Row */}
+              <div className="mt-8">
+                <h6 className="text-xl font-extralight italic text-gray-900 p-2 border-t border-gray-200">
+                  Recommended Blogs
+                </h6>
+
+                <div className="relative mt-4">
+                  <button
+                    onClick={handlePrevBlog}
+                    className="absolute left-0 top-1/2 -translate-y-1/2 z-10 group"
+                  >
+                    <div className="flex items-center justify-center w-12 h-12 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-full shadow-lg transform transition-all duration-300 group-hover:scale-110 group-hover:bg-thought-100/10">
+                      <RiArrowDropLeftFill
+                        className="text-thought-100 transform transition-transform duration-300 group-hover:text-hub-100 group-hover:-translate-x-1"
+                        size={32}
+                      />
+                    </div>
+                  </button>
+
+                  {/* Blog Cards Container */}
+                  <div
+                    className="flex flex-col"
+                    onMouseEnter={() => setAutoSlideEnabled(false)}
+                    onMouseLeave={() => setAutoSlideEnabled(true)}
+                  >
+                    {" "}
+                    <div className="flex justify-center overflow-hidden h-[160px]">
+                      <div
+                        className="flex transition-transform duration-500 ease-in-out"
+                        style={{
+                          transform: `translateX(-${
+                            currentRecommendedBlogIndex * 100
+                          }%)`,
+                        }}
+                      >
+                        {recommendedBlogs.map((blogItem, index) => (
+                          <div
+                            key={index}
+                            className="flex-shrink-0 w-full flex justify-center items-center px-0"
+                          >
+                            <ModernBlogCard blog={blogItem} />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <ProgressBar
+                      totalChunks={recommendedBlogs.length}
+                      activeChunk={currentRecommendedBlogIndex}
+                      autoSlideEnabled={autoSlideEnabled}
+                      interval={SLIDE_INTERVAL}
+                    />
+                  </div>
+
+                  <button
+                    onClick={handleNextBlog}
+                    className="absolute right-0 top-1/2 -translate-y-1/2 z-10 group"
+                  >
+                    <div className="flex items-center justify-center w-12 h-12 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-full shadow-lg transform transition-all duration-300 group-hover:scale-110 group-hover:bg-thought-100/10">
+                      <RiArrowDropRightFill
+                        className="text-thought-100 transform transition-transform duration-300 group-hover:text-hub-100 group-hover:translate-x-1"
+                        size={32}
+                      />
+                    </div>
+                  </button>
+                </div>
               </div>
             </div>
           )}
@@ -485,79 +655,13 @@ export function BlogModal({
             </div>
           )}
         </div>
-        {/*Blog Recommendation Row */}
-        <div>
-          <h6 className="text-xl font-extralight italic text-gray-900 bg-gray-50 p-2 border-t border-gray-200">
-            Recommended Blogs
-          </h6>
-
-          <div className="relative bg-gray-50 border-t border-gray-200">
-            <div
-              className="absolute left-0 top-0 h-[160px] w-[60px] flex items-center justify-center bg-gradient-to-r from-thought-75 to-transparent hover:bg-thought-100/20 cursor-pointer z-10 transition-colors duration-300"
-              onClick={handlePrevBlog}
-            >
-              <RiArrowDropLeftFill className="text-thought-100 size-8 sm:size-7 hover:text-hub-100" />
-            </div>
-
-            <div className="flex justify-center overflow-hidden h-[160px]">
-              <div
-                className="flex transition-transform duration-500 ease-in-out"
-                style={{
-                  transform: `translateX(-${
-                    currentRecommendedBlogIndex * 100
-                  }%)`,
-                }}
-              >
-                {recommendedBlogs.map((blogItem, index) => (
-                  <div
-                    key={index}
-                    className="flex-shrink-0 w-full flex justify-center items-center px-0"
-                  >
-                    <ModernBlogCard blog={blogItem} />
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div
-              className="absolute right-0 top-0 h-[160px] w-[60px] flex items-center justify-center bg-gradient-to-l from-thought-75 to-transparent hover:bg-thought-100/20 cursor-pointer z-10 transition-colors duration-300"
-              onClick={handleNextBlog}
-            >
-              <RiArrowDropRightFill className="text-thought-100 size-8 sm:size-7 hover:text-hub-100" />
-            </div>
-          </div>
-
-          <div className="bg-gray-100 text-center py-4 border-t border-gray-300">
-            <p className="text-sm text-gray-600">
-              © {new Date().getFullYear()} by {blog.blog_data.name}
-            </p>
-          </div>
+        {/* Footer */}
+        <div className="bg-gray-100 text-center py-4 border-t border-gray-300">
+          <p className="text-sm text-gray-600">
+            © {new Date().getFullYear()} by {blog.blog_data.name}
+          </p>
         </div>
       </div>
-    </div>
-  );
-}
-
-function ModernBlogCard({ key, blog }) {
-  return (
-    <div className="flex flex-row items-center justify-between bg-thought-50 border border-gray-200 rounded-lg shadow-md p-4 m-2">
-      <div className="flex flex-col">
-        <h2 className="text-lg font-semibold text-gray-900">
-          {blog.blog_data.title}
-        </h2>
-        <p className="text-sm text-gray-600">{blog.blog_data.name}</p>
-        <p className="text-xs text-gray-500">
-          {blog.blog_data.content.slice(0, 100)}...
-        </p>
-      </div>
-      <img
-        src={
-          blog.blog_data.blog_image
-            ? `data:image/png;base64,${blog.blog_data.blog_image}`
-            : "https://via.placeholder.com/150"
-        }
-        alt={blog.blog_data.title}
-        className="w-16 h-16 rounded-lg object-cover"
-      />
     </div>
   );
 }
