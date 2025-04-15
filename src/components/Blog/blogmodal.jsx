@@ -16,34 +16,55 @@ import { RiArrowDropLeftFill, RiArrowDropRightFill } from "react-icons/ri";
 import axios from "axios";
 import { useAlertContext } from "../../contexts/alertContext";
 import { useModal } from "../../contexts/warningContext";
+import moment from 'moment'; 
 
 import { NewBlogModal } from "./newblog";
 
-// Helper components moved outside BlogModal
-function ProgressBar({ totalChunks, activeChunk }) {
+function ProgressBar({ totalChunks, activeChunk, autoSlideEnabled, interval }) {
   return (
     <div className="flex justify-center space-x-2 mt-4">
       {[...Array(totalChunks)].map((_, index) => (
         <div
           key={index}
-          className={`h-1 rounded-full transition-all duration-300 ${
-            index === activeChunk 
-              ? 'w-12 bg-gradient-to-r from-thought-100 to-hub-100' 
-              : 'w-8 bg-gray-200'
+          className={`h-1 rounded-full transition-all duration-300 relative ${
+            index === activeChunk ? "w-12" : "w-8"
           }`}
-        ></div>
+        >
+          <div
+            className={`absolute inset-0 rounded-full ${
+              index === activeChunk
+                ? "bg-gradient-to-r from-thought-100 to-hub-100"
+                : "bg-gray-200"
+            }`}
+          />
+          {index === activeChunk && autoSlideEnabled && (
+            <div
+              className="absolute inset-0 bg-white/50 rounded-full"
+              style={{
+                transform: "scaleX(0)",
+                transformOrigin: "left",
+                animation: `slideProgress ${interval}ms linear infinite`,
+              }}
+            />
+          )}
+        </div>
       ))}
     </div>
   );
 }
 
+const stripHtml = (html) => {
+  const tmp = document.createElement("DIV");
+  tmp.innerHTML = html;
+  return tmp.textContent || tmp.innerText || "";
+};
 
 function ModernBlogCard({ blog }) {
   return (
-    <div className="w-[800px] h-[160px] mx-4 bg-white hover:bg-gray-50 transition-all duration-300 border border-gray-200 rounded-xl shadow-sm hover:shadow-md overflow-hidden">
+    <div className="w-full sm:w-[400px] md:w-[600px] lg:w-[800px] h-[120px] sm:h-[140px] md:h-[160px] mx-2 sm:mx-4 bg-white hover:bg-gray-50 transition-all duration-300 border border-gray-200 rounded-xl shadow-sm hover:shadow-md overflow-hidden">
       <div className="flex h-full">
         {/* Image Section */}
-        <div className="w-[200px] h-full flex-shrink-0">
+        <div className="w-[100px] sm:w-[150px] md:w-[200px] h-full flex-shrink-0">
           <img
             src={
               blog.blog_data.blog_image
@@ -56,40 +77,44 @@ function ModernBlogCard({ blog }) {
         </div>
 
         {/* Content Section */}
-        <div className="flex-1 p-4 flex flex-col justify-between">
+        <div className="flex-1 p-2 sm:p-3 md:p-4 flex flex-col justify-between">
           <div>
-            <div className="flex items-center space-x-2 mb-2">
+            <div className="flex justify-between items-start">
+              <h3 className="text-sm sm:text-base md:text-lg font-semibold text-gray-900 mb-1 sm:mb-2 line-clamp-1">
+                {blog.blog_data.title}
+              </h3>
+              <span className="text-gray-500 text-xs">
+                {moment(blog.blog_data.created_on).format('MM/DD/YYYY')}
+              </span>
+            </div>
+            <div className="flex items-center space-x-1 sm:space-x-2 mb-1 sm:mb-2">
               <img
                 src="https://via.placeholder.com/30"
                 alt="Author"
-                className="w-6 h-6 rounded-full"
+                className="w-4 h-4 sm:w-5 sm:h-5 rounded-full"
               />
-              <span className="text-sm text-gray-600">
+              <span className="text-xs sm:text-sm text-gray-600">
                 {blog.blog_data.name}
               </span>
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-1">
-              {blog.blog_data.title}
-            </h3>
-            <p className="text-sm text-gray-600 line-clamp-2">
-              {blog.blog_data.content}
-            </p>
+            <p className="text-xs sm:text-sm text-gray-600 line-clamp-2">
+            {stripHtml(blog.blog_data.content)}            </p>
           </div>
 
           {/* Footer Section */}
-          <div className="flex items-center justify-between mt-2 text-sm text-gray-500">
-            <div className="flex items-center space-x-4">
+          <div className="flex items-center justify-between mt-1 sm:mt-2 text-xs sm:text-sm text-gray-500">
+            <div className="flex items-center space-x-2 sm:space-x-4">
               <span className="flex items-center">
-                <FaHeart className="text-red-400 mr-1" size={14} />
+                <FaHeart className="text-red-400 mr-1" size={12} />
                 {blog.likes || 0}
               </span>
               <span className="flex items-center">
-                <FaComment className="text-blue-400 mr-1" size={14} />
+                <FaComment className="text-blue-400 mr-1" size={12} />
                 {blog.comments?.length || 0}
               </span>
             </div>
             <span className="flex items-center">
-              <FaClock className="mr-1" size={14} />
+              <FaClock className="mr-1" size={12} />
               {Math.ceil(blog.blog_data.content.split(/\s+/).length / 225)} min
               read
             </span>
@@ -107,12 +132,12 @@ export function BlogModal({
   onAddComment,
   onBlogDelete,
 }) {
-
-  const SLIDE_INTERVAL = 5000; 
+  const SLIDE_INTERVAL = 5000;
   let apiKey = "VITE_API_KEY_" + new Date().getDay();
   const userData = JSON.parse(localStorage.getItem("userData"));
   const userId = userData ? userData.user_id : null;
 
+ 
   const modalRef = useRef(null);
   const navigate = useNavigate();
   const { showWarning } = useModal();
@@ -125,9 +150,9 @@ export function BlogModal({
   const [summary, setSummary] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [currentRecommendedBlogIndex, setCurrentRecommendedBlogIndex] = useState(0);
+  const [currentRecommendedBlogIndex, setCurrentRecommendedBlogIndex] =
+    useState(0);
   const [autoSlideEnabled, setAutoSlideEnabled] = useState(true);
-
 
   const recommendedBlogs = [blog, blog, blog];
   const tabs = [
@@ -136,7 +161,7 @@ export function BlogModal({
     "about",
     ...(summary ? ["summary"] : []),
   ];
-  
+
   const encodedUrl = encodeURIComponent(window.location.href);
   const encodedText = encodeURIComponent(
     `${blog.blog_data.title} - Check out this blog!`
@@ -189,8 +214,8 @@ export function BlogModal({
       }
     };
   }, [autoSlideEnabled, isOpen, recommendedBlogs.length]);
+  if (!isOpen || !blog || !blog.blog_data) return null;
 
-  // Event handlers
   const handleCommentChange = (e) => {
     setNewComment(e.target.value);
   };
@@ -286,9 +311,6 @@ export function BlogModal({
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
-  if (!isOpen || !blog || !blog.blog_data) return null;
-
-
   return (
     <div className="fixed z-50 inset-0 flex items-center justify-center">
       <div
@@ -331,7 +353,6 @@ export function BlogModal({
                     <span className="font-normal text-xs md:font-medium">
                       {blog.blog_data.name}
                     </span>
-                    {/*Commented the below code temporarily as verification is not implemented yet.*/}
                     {/* <div className="text-xs flex items-center text-gray-500">
                       <FaCheckCircle className="text-green-500 mr-1" />
                       Verified Author
@@ -401,7 +422,6 @@ export function BlogModal({
                 {tab}
               </button>
 
-              {/* Hover Message for "comments" and "about" tabs */}
               {(tab === "comments" || tab === "about") && (
                 <div className="absolute hidden group-hover:block z-50 bg-thought-75 text-hub-100 text-sm p-2 rounded mt-2 top-full left-1/2 transform -translate-x-1/2 whitespace-nowrap">
                   Coming soon
@@ -485,7 +505,7 @@ export function BlogModal({
                   </div>
                 </div>
               </div>
-              
+
               {/* QuickScribe Button */}
               <div className="mt-8 text-center">
                 <button
@@ -509,6 +529,7 @@ export function BlogModal({
                 </h6>
 
                 <div className="relative mt-4">
+                  {/* Left Arrow */}
                   <button
                     onClick={handlePrevBlog}
                     className="absolute left-0 top-1/2 -translate-y-1/2 z-10 group"
@@ -547,6 +568,7 @@ export function BlogModal({
                         ))}
                       </div>
                     </div>
+                    {/* Progress Bar */}
                     <ProgressBar
                       totalChunks={recommendedBlogs.length}
                       activeChunk={currentRecommendedBlogIndex}
@@ -555,6 +577,7 @@ export function BlogModal({
                     />
                   </div>
 
+                  {/* Right Arrow */}
                   <button
                     onClick={handleNextBlog}
                     className="absolute right-0 top-1/2 -translate-y-1/2 z-10 group"
@@ -655,7 +678,8 @@ export function BlogModal({
             </div>
           )}
         </div>
-        {/* Footer */}
+        {/*Blog Recommendation Row */}
+
         <div className="bg-gray-100 text-center py-4 border-t border-gray-300">
           <p className="text-sm text-gray-600">
             © {new Date().getFullYear()} by {blog.blog_data.name}
