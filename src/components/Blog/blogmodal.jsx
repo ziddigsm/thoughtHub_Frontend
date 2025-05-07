@@ -285,7 +285,7 @@ export function BlogModal({
       } catch {
         console.error("Error fetching like count:", error);
       }
-    }, 1000 * 60 * 30);
+    }, 1000 * 60 * 15);
     return () => clearInterval(interval);
   }, [blog]);
 
