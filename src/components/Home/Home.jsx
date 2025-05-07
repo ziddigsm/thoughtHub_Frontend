@@ -8,6 +8,8 @@ import { NewBlogModal } from "../Blog/newblog";
 import Footer from "../Footer/footer";
 import { FetchBlogs } from "../Blog/blog";
 import { useAlertContext } from "../../contexts/alertContext";
+import { BlogModal } from "../Blog/blogmodal";
+import axios from "axios";
 
 function SearchBar({ searchQuery, setSearchQuery, setIsSearching }) {
   //add isSmallScreen state here for navbar
@@ -65,28 +67,86 @@ SearchBar.propTypes = {
 };
 
 function Home() {
-// add states for categories section handling from notes
+  // add states for categories section handling from notes
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [isMyBlogs, setIsMyBlogs] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const { showAlert } = useAlertContext();
-
+  const [newBlogModalOpen, setNewBlogModalOpen] = useState(false);
+  const [hasLiked, setHasLiked] = useState(false);
+  const [modalBlogData, setModalBlogData] = useState(null);
   const profileRef = useRef(null);
   const navigate = useNavigate();
 
+  const userId = JSON.parse(localStorage.getItem("userData"))?.user_id;
+
   // add navbar categories items here
 
-  const handleLogout = useLogout().handleLogout;
+  const queryParams = new URLSearchParams(window.location.search);
+  const blogIdFromUrl = queryParams.get("blog_id");
+  let apiKey = "VITE_API_KEY_" + new Date().getDay();
 
+  // Check for recommended blog data in localStorage if ID exists in URL
+  useEffect(() => {
+    if (blogIdFromUrl) {
+      const blogData = localStorage.getItem("selectedRecommendedBlog");
+      if (blogData) {
+        const parsed = JSON.parse(blogData);
+        if (parsed.blog_data?.id.toString() === blogIdFromUrl) {
+          setModalBlogData(parsed);
+          setModalOpen(true);
+          localStorage.removeItem("selectedRecommendedBlog");
+        }
+      }
+    }
+  }, [blogIdFromUrl]);
+
+  //to check if user has liked the opened blog
+  const userHasLikedCheck = async (blogId) => {
+    try {
+      let baseUrl = import.meta.env.VITE_USER_HAS_LIKED_BLOG_API;
+      baseUrl += `${blogId}&user_id=${userId}`;
+      console.log(baseUrl);
+      const response = await axios.get(baseUrl, {
+        headers: {
+          "Content-Type": "application/json",
+          "X-API-Key": import.meta.env[apiKey],
+        },
+      });
+      if (response.status === 200) {
+        setHasLiked(response.data.has_liked);
+      } else {
+        setHasLiked(false);
+      }
+    } catch (err) {
+      console.error("Error checking like status:", err);
+      setHasLiked(false);
+    }
+  };
+
+  useEffect(() => {
+    const checkLikedStatus = async () => {
+      if (modalOpen && modalBlogData?.blog_data?.id) {
+        await userHasLikedCheck(modalBlogData.blog_data.id);
+        console.log(
+          "Checking like status for blog:",
+          modalBlogData.blog_data.id
+        );
+      }
+    };
+    checkLikedStatus();
+  }, [modalOpen, modalBlogData?.blog_data?.id]);
+
+  const handleLogout = useLogout().handleLogout;
 
   const handleClickOnProfile = () => {
     setIsProfileOpen(!isProfileOpen);
   };
 
   const handleNewBlogModal = () => {
-    setModalOpen(!modalOpen);
+    setNewBlogModalOpen(true);
   };
 
   // add handle and useEffect methods to handle resize and more clicks
@@ -152,7 +212,7 @@ function Home() {
             onClick={handleClickOnProfile}
           />
 
-      {/* Hamburger menu button comes here */}
+          {/* Hamburger menu button comes here */}
         </div>
       </header>
 
@@ -183,6 +243,22 @@ function Home() {
             Logout
           </a>
         </div>
+      )}
+
+      {modalOpen && modalBlogData && (
+        <BlogModal
+          blog={modalBlogData}
+          isOpen={modalOpen}
+          onClose={() => {
+            setModalOpen(false);
+            setHasLiked(false);
+            localStorage.removeItem("selectedRecommendedBlog");
+          }}
+          onAddComment={() => {}}
+          onBlogDelete={() => {}}
+          hasLiked={hasLiked}
+          setHasLiked={setHasLiked}
+        />
       )}
 
       <div className="flex-grow flex flex-col">
@@ -216,15 +292,15 @@ function Home() {
           )}
         </div>
 
-        {modalOpen && (
+        {newBlogModalOpen && (
           <NewBlogModal
-            isOpen={modalOpen}
-            onClose={() => setModalOpen(false)}
+            isOpen={newBlogModalOpen}
+            onClose={() => setNewBlogModalOpen(false)}
           />
         )}
 
         <div className="w-full">
-          <Footer isModalOpen={modalOpen} />
+          <Footer isModalOpen={newBlogModalOpen} />
         </div>
       </div>
     </div>

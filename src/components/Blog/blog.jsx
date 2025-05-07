@@ -2,7 +2,6 @@ import axios from "axios";
 import { BlogCard } from "../Home/shimmer";
 import { useEffect, useState } from "react";
 import { Pagination } from "../Home/pagination";
-import { BlogModal } from "./blogmodal";
 import { useAlertContext } from "../../contexts/alertContext";
 import PropTypes from "prop-types";
 
@@ -11,8 +10,6 @@ export function FetchBlogs({ isMyBlogs, searchQuery, isSearching }) {
   const [pageCount, setPageCount] = useState(1);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
-  const [selectedBlog, setSelectedBlog] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const { showAlert } = useAlertContext();
 
   let apiKey = "VITE_API_KEY_" + new Date().getDay();
@@ -116,15 +113,6 @@ export function FetchBlogs({ isMyBlogs, searchQuery, isSearching }) {
     }
   };
 
-  const openBlogModal = (blog) => {
-    setSelectedBlog(blog);
-    setIsModalOpen(true);
-  };
-
-  const closeBlogModal = () => {
-    setSelectedBlog(null);
-    setIsModalOpen(false);
-  };
   const handleBlogDelete = (deletedBlogId) => {
     setBlogs((prevBlogs) =>
       prevBlogs.filter((blog) => blog.blog_data.id !== deletedBlogId)
@@ -145,7 +133,6 @@ export function FetchBlogs({ isMyBlogs, searchQuery, isSearching }) {
               index={index}
               isData={true}
               blog={blog}
-              onClick={() => openBlogModal(blog)}
               onBlogDelete={handleBlogDelete}
             />
           ))
@@ -161,16 +148,6 @@ export function FetchBlogs({ isMyBlogs, searchQuery, isSearching }) {
           handleNextPage={handleNextPage}
           handlePreviousPage={handlePreviousPage}
           page={page}
-        />
-      )}
-      {isModalOpen && selectedBlog && (
-        <BlogModal
-          blog={selectedBlog}
-          isOpen={isModalOpen}
-          onClose={closeBlogModal}
-          onAddComment={(comment) => {
-            console.log(`Comment added: ${comment}`);
-          }}
         />
       )}
     </div>
