@@ -615,10 +615,10 @@ export function BlogModal({
                   <div className="flex items-center space-x-2">
                     <FaHeart
                       size={20}
-                      className={` transition-colors duration-200 cursor-pointer ${
+                      className={` transition-colors duration-200 cursor-pointer hover:scale-125 ${
                         hasLiked
-                          ? "text-red-500 hover:text-gray-300"
-                          : "text-gray-300  hover:text-red-500"
+                          ? `text-red-500 hover:text-gray-300 animate-unlike`
+                          : "text-gray-300  hover:text-red-500 animate-like"
                       }`}
                       onClick={handleLikeToggle}
                     />
