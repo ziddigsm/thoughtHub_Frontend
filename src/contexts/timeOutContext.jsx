@@ -25,7 +25,7 @@ const TimeOutProvider = ({ children }) => {
       if (inactivityTimer) {
         clearTimeout(inactivityTimer);
       }
-      inactivityTimer = setTimeout(logout, 300000);
+      inactivityTimer = setTimeout(logout, 1000 *60 * 30); // 30 minutes
     };
 
     const handleActivity = () => {
