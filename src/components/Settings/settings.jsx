@@ -31,7 +31,7 @@ export function Settings() {
   const [isFacebookUpdated, setIsFacebookUpdated] = useState(false);
   const [isTwitterUpdated, setIsTwitterUpdated] = useState(false);
 
-  let apiKey = "VITE_API_KEY_" + new Date().getDay();
+  let apiKey = "VITE_API_KEY_" + new Date().getUTCDay();
 
   const handleLogout = useLogout().handleLogout;
   const { showAlert } = useAlertContext();

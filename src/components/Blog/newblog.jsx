@@ -17,7 +17,7 @@ export function NewBlogModal({ isOpen, onClose, isEditing = false, blog }) {
   const [isPublishing, setIsPublishing] = useState(false);
   const imageInputRef = useRef(null);
 
-  let apiKey = "VITE_API_KEY_" + new Date().getDay();
+  let apiKey = "VITE_API_KEY_" + new Date().getUTCDay();
 
   useEffect(() => {
     if (isEditing) {

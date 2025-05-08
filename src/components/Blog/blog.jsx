@@ -12,7 +12,7 @@ export function FetchBlogs({ isMyBlogs, searchQuery, isSearching }) {
   const [page, setPage] = useState(1);
   const { showAlert } = useAlertContext();
 
-  let apiKey = "VITE_API_KEY_" + new Date().getDay();
+  let apiKey = "VITE_API_KEY_" + new Date().getUTCDay();
 
   const limit = 9;
 

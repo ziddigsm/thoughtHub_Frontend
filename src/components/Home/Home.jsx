@@ -86,7 +86,7 @@ function Home() {
 
   const queryParams = new URLSearchParams(window.location.search);
   const blogIdFromUrl = queryParams.get("blog_id");
-  let apiKey = "VITE_API_KEY_" + new Date().getDay();
+  let apiKey = "VITE_API_KEY_" + new Date().getUTCDay();
 
   // Check for recommended blog data in localStorage if ID exists in URL
   useEffect(() => {

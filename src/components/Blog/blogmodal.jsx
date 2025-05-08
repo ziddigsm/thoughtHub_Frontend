@@ -157,7 +157,7 @@ export function BlogModal({
   setHasLiked,
 }) {
   const SLIDE_INTERVAL = 5000;
-  let apiKey = "VITE_API_KEY_" + new Date().getDay();
+  let apiKey = "VITE_API_KEY_" + new Date().getUTCDay();
   const userData = JSON.parse(localStorage.getItem("userData"));
   const userId = userData ? userData.user_id : null;
 

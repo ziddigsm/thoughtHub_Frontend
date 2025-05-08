@@ -25,7 +25,7 @@ function Login() {
 
   const fetchBlogs = async () => {
     const blogId = 0;
-    let apiKey = "VITE_API_KEY_" + new Date().getDay();
+    let apiKey = "VITE_API_KEY_" + new Date().getUTCDay();
 
     setIsLoading(true);
     setError(null);
