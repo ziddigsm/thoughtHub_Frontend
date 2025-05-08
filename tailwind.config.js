@@ -36,10 +36,15 @@ export default {
           "50%": { transform: "scale(0.8)" },
           "100%": { transform: "scale(1)" },
         },
+        slideProgress: {
+          from: { transform: "scaleX(0)" },
+          to: { transform: "scaleX(1)" },
+        },
       },
       animation: {
         like: "like 0.3s ease",
         unlike: "unlike 0.3s ease",
+        slideProgress: "slideProgress 3s linear infinite",
       },
     },
   },

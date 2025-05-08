@@ -40,12 +40,8 @@ function ProgressBar({ totalChunks, activeChunk, autoSlideEnabled, interval }) {
           />
           {index === activeChunk && autoSlideEnabled && (
             <div
-              className="absolute inset-0 bg-white/50 rounded-full"
-              style={{
-                transform: "scaleX(0)",
-                transformOrigin: "left",
-                animation: `slideProgress ${interval}ms linear infinite`,
-              }}
+              className="absolute inset-0 bg-white/50 rounded-full origin-left scale-x-0 animate-slideProgress"
+              style={{ animationDuration: `${interval}ms` }}
             />
           )}
         </div>
