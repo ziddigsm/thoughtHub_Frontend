@@ -470,6 +470,7 @@ export function BlogModal({
                     <span className="font-normal text-xs md:font-medium">
                       {blog.blog_data.name}
                     </span>
+                    {/*Commented the below code temporarily as verification is not implemented yet.*/}
                     {/* <div className="text-xs flex items-center text-gray-500">
                       <FaCheckCircle className="text-green-500 mr-1" />
                       Verified Author
@@ -488,6 +489,7 @@ export function BlogModal({
                       disabled={true}
                       className={`text-hub-100 size-8 sm:size-7 cursor-pointer hover:text-thought-100 `}
                       onClick={handleEditBlog}
+                      title="Edit blog"
                     />
                   </>
                 )}
