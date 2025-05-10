@@ -85,7 +85,7 @@ function ModernBlogCard({ blog, OnClick }) {
         </div>
 
         {/* Content Section */}
-        <div className="flex-1 p-2 xs:p-3 sm:p-4 flex flex-col justify-between">
+        <div className="flex-1 p-3  sm:p-4 flex flex-col justify-between">
           <div>
             <div className="flex justify-between items-start">
               <h3 className="text-xs xs:text-sm sm:text-base md:text-lg font-semibold text-gray-900 mb-1 xs:mb-2 line-clamp-1">
